@@ -1,0 +1,41 @@
+{% macro light_or_dark_mode(element) %}
+{% if request.args.get('mode') == "dark" %}
+  <a href="{{ request.path }}">Switch to Light Mode</a>
+
+  <style>
+    {{ element }} {
+      background-color: #212F3C;
+      color: #fff;
+    }
+
+    {{ element }} a {
+      color: #070528 !important;
+    }
+
+    /* Target table text within the element */
+    {{ element }} table, {{ element }} th, {{ element }} td {
+      color: #fff;
+    }
+  </style>
+
+{% else %}
+  <a href="{{ request.path }}?mode=dark">Switch to Dark Mode</a>
+
+  <style>
+    {{ element }} {
+      background-color: #f8f9fa;
+      color: #000;
+    }
+
+    {{ element }} a {
+      color: #021920 !important;
+    }
+
+    /* Target table text within the element */
+    {{ element }} table, {{ element }} th, {{ element }} td {
+      color: #000;
+    }
+  </style>
+
+{% endif %}
+{% endmacro %}
