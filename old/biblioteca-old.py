@@ -1,5 +1,15 @@
+import mysql.connector
+from mysql.connector import cursor
 from flask import Flask, render_template
 app = Flask(__name__, static_url_path='/static')   
+
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="",
+    database="bibliodb"
+)
+
 
 @app.route('/')
 @app.route('/home')
@@ -8,12 +18,19 @@ def home():
 
 @app.route('/opere')
 def opere():
-    items = [
-        {'id': 1, 'titolo': 'Il Signore degli Anelli', 'autore': 'J.R.R. Tolkien', 'anno_pubblicazione': 1954},
-        {'id': 2, 'titolo': '1984', 'autore': 'George Orwell', 'anno_pubblicazione': 1949},
-        {'id': 3, 'titolo': 'Il Grande Gatsby', 'autore': 'F. Scott Fitzgerald', 'anno_pubblicazione': 1925}
-    ]
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM opere")
+    items = cursor.fetchall()
+
     return render_template('opere.html', items=items)
+
+@app.route('/autori')
+def autori():
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM autori")
+    items1 = cursor.fetchall()
+
+    return render_template('autori.html', items=items1)
 
 @app.route('/lettori')
 def lettori():
