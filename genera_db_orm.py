@@ -1,5 +1,5 @@
 from biblioteca import app, db
-from biblioteca.models import ClassificazioneDewey, Autore, Editore, TipoOpera, Opere, Lettori, Prestiti
+from biblioteca.models import ClassificazioneDewey, Autore, Editore, TipoOpera, Opera, Lettore, Prestito, Copia
 
 # ==========================================
 # CREAZIONE TABELLE E POPOLAMENTO DEWEY
@@ -12,6 +12,8 @@ with app.app_context():
     # 2. Popolamento Dewey (solo se la tabella è vuota)
     if ClassificazioneDewey.query.count() == 0:
         print("Popolamento classificazione Dewey in corso...")
+        
+        # Struttura: 'CodicePadre': [(CodiceCompleto, NomeSottosezione/Sezione)]
         dewey_data = {
             '000': [(None, 'Generalità'), ('010', 'Bibliografia'), ('020', 'Biblioteconomia'), ('030', 'Enciclopedie'), ('050', 'Pubblicazioni seriali'), ('060', 'Museologia'), ('070', 'Giornalismo'), ('080', 'Raccolte generali'), ('090', 'Libri rari')],
             '100': [(None, 'Filosofia e psicologia'), ('110', 'Metafisica'), ('120', 'Gnoseologia'), ('130', 'Paranormale'), ('140', 'Scuole filosofiche'), ('150', 'Psicologia'), ('160', 'Logica'), ('170', 'Etica'), ('180', 'Filosofia antica'), ('190', 'Filosofia moderna')],
@@ -26,15 +28,30 @@ with app.app_context():
         }
 
         for principale, sottosezioni in dewey_data.items():
+            # Troviamo prima il nome della categoria principale (quella con codice completo None)
+            nome_categoria_principale = next((desc for cod, desc in sottosezioni if cod is None), "Senza categoria")
+            
             for codice_full, desc in sottosezioni:
-                sotto_codice = codice_full[1:] if codice_full else None
-                entry = ClassificazioneDewey(
-                    sezione_principale=principale,
-                    sottosezione=sotto_codice,
-                    descrizione=desc
-                )
+                if codice_full is None:
+                    # È la riga della categoria principale (es. 600 - Tecnologia)
+                    entry = ClassificazioneDewey(
+                        sezione_principale=principale,
+                        sottosezione=None,
+                        descrizione=desc,
+                        descrizione_sottosezione=None
+                    )
+                else:
+                    # È una sottosezione (es. 610 - Medicina)
+                    # Estraggo la parte decimale (es. da '610' prendo '10')
+                    sotto_codice = codice_full[1:] 
+                    entry = ClassificazioneDewey(
+                        sezione_principale=principale,
+                        sottosezione=sotto_codice,
+                        descrizione=nome_categoria_principale,
+                        descrizione_sottosezione=desc
+                    )
                 db.session.add(entry)
         
         db.session.commit()
-        print("Database e Dewey pronti!")
+        print("Database e Dewey pronti con descrizioni dettagliate!")
 

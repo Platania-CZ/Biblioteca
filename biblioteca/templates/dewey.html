@@ -20,6 +20,7 @@ pagina negozio
                             <th scope="col">Sezione Principale</th>
                             <th scope="col">Sottosezione</th>
                             <th scope="col">Descrizione</th>
+                            <th scope="col">Descrizione Sottosezione</th> <!-- Nuovo campo -->
                             <th scope="col" class="text-center">Azioni</th>
                         </tr>
                     </thead>
@@ -28,14 +29,26 @@ pagina negozio
                         {% for item in items %}
                         <tr>
                             <td>{{ item.id }}</td>
-                            <td><strong>{{ item.sezione_principale }}</strong></td>
-                            <td>{{ item.sottosezione }}</td>
-                            <td>{{ item.descrizione }}</td>
+                            <td><span class="badge bg-secondary">{{ item.sezione_principale }}</span></td>
+                            <td>
+                                {% if item.sottosezione %}
+                                    {{ item.sottosezione }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ item.descrizione }}</strong></td>
+                            <td>
+                                {% if item.descrizione_sottosezione %}
+                                    {{ item.descrizione_sottosezione }}
+                                {% else %}
+                                    <span class="text-muted italic small">Voce principale</span>
+                                {% endif %}
+                            </td>
                             <td class="text-center">
                                 <div class="d-grid gap-2 d-md-block">
-                                    <!-- Esempio di link dinamici con url_for -->
                                     <a href="#" class="btn btn-sm btn-info text-white">
-                                        Dettaglio
+                                        <i class="bi bi-eye"></i> Dettaglio
                                     </a>
                                     <button type="button" class="btn btn-sm btn-outline-primary">
                                         Seleziona
@@ -45,8 +58,8 @@ pagina negozio
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="5" class="text-center text-muted italic">
-                                Nessun elemento presente in lista.
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <em>Nessun elemento presente in lista.</em>
                             </td>
                         </tr>
                         {% endfor %}

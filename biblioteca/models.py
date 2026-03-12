@@ -23,18 +23,27 @@ class ClassificazioneDewey(db.Model):
     descrizione = db.Column(db.String(255), nullable=False)
     sezione_principale = db.Column(db.String(3), nullable=False)
     sottosezione = db.Column(db.String(20), nullable=True)
+    descrizione_sottosezione = db.Column(db.String(255), nullable=True)
 
     # Relazione con le opere classificate
     opere = db.relationship('Opera', backref='classificazione', lazy=True)
 
     @property
     def codice_dewey(self):
+        """Restituisce il codice completo formato da sezione principale e sottosezione."""
         if self.sottosezione:
             return f"{self.sezione_principale}.{self.sottosezione}"
         return self.sezione_principale
 
+    @property
+    def descrizione_completa(self):
+        """Restituisce la descrizione gerarchica (Principale - Sottosezione)."""
+        if self.descrizione_sottosezione:
+            return f"{self.descrizione} - {self.descrizione_sottosezione}"
+        return self.descrizione
+
     def __repr__(self):
-        return f'<ClassificazioneDewey {self.codice_dewey} - {self.descrizione}>'
+        return f'<ClassificazioneDewey {self.codice_dewey} - {self.descrizione_completa}>'
 
 class Editore(db.Model):
     __tablename__ = 'editori'
