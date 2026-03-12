@@ -1,0 +1,38 @@
+{% extends 'home.html' %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Gestione Utenti</h2>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Ruolo</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for utente in utenti %}
+            <tr>
+                <td>{{ utente.id }}</td>
+                <td>{{ utente.username }}</td>
+                <td>{{ utente.email_address }}</td>
+                <td>
+                    <span class="badge {% if utente.is_amministratore %}bg-danger{% else %}bg-primary{% endif %}">
+                        {{ utente.ruolo }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{{ url_for('cambio_password_admin', utente_id=utente.id) }}" 
+                       class="btn btn-sm btn-warning">
+                        🔑 Cambia Password
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

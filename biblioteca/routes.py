@@ -109,10 +109,7 @@ def dewey():
     items = ClassificazioneDewey.query.all()
     return render_template('dewey.html', items=items)
 
-# ==========================================
-# ROUTE SOLO AMMINISTRATORE
-# ==========================================
-
+# solo amministratore
 @app.route('/registrazione', methods=['GET', 'POST'])
 @login_amministratore_required
 def registrazione():
@@ -130,3 +127,40 @@ def registrazione():
         return redirect(url_for('home'))
     
     return render_template('registrazione.html', form=form)
+
+# Cambio password proprio account (operatore e amministratore)
+@app.route('/cambio-password', methods=['GET', 'POST'])
+@login_required
+def cambio_password():
+    from biblioteca.forms import CambioPasswordForm
+    form = CambioPasswordForm()
+    if form.validate_on_submit():
+        if not current_user.check_password_correction(form.password_attuale.data):
+            flash('Password attuale errata.', 'danger')
+            return redirect(url_for('cambio_password'))
+        current_user.password = form.nuova_password.data
+        db.session.commit()
+        flash('Password cambiata con successo!', 'success')
+        return redirect(url_for('home'))
+    return render_template('cambio_password.html', form=form, utente=current_user)
+
+# Cambio password altrui (solo amministratore)
+@app.route('/cambio-password/<int:utente_id>', methods=['GET', 'POST'])
+@login_amministratore_required
+def cambio_password_admin(utente_id):
+    from biblioteca.forms import CambioPasswordAdminForm
+    utente = Utente.query.get_or_404(utente_id)
+    form = CambioPasswordAdminForm()
+    if form.validate_on_submit():
+        utente.password = form.nuova_password.data
+        db.session.commit()
+        flash(f'Password di {utente.username} cambiata con successo!', 'success')
+        return redirect(url_for('gestione_utenti'))
+    return render_template('cambio_password.html', form=form, utente=utente)
+
+# Lista utenti (solo amministratore)
+@app.route('/gestione-utenti')
+@login_amministratore_required
+def gestione_utenti():
+    utenti = Utente.query.all()
+    return render_template('gestione_utenti.html', utenti=utenti)

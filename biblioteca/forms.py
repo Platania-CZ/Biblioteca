@@ -25,3 +25,14 @@ class RegistrazioneForm(FlaskForm):
         utente = Utente.query.filter_by(email_address=email_address.data).first()
         if utente:
             raise ValidationError('Email già in uso, scegline un\'altra.')
+        
+class CambioPasswordForm(FlaskForm):
+    password_attuale = PasswordField('Password Attuale', validators=[DataRequired()])
+    nuova_password = PasswordField('Nuova Password', validators=[DataRequired(), Length(min=6)])
+    conferma_password = PasswordField('Conferma Nuova Password', validators=[DataRequired(), EqualTo('nuova_password')])
+    submit = SubmitField('Cambia Password')
+
+class CambioPasswordAdminForm(FlaskForm):
+    nuova_password = PasswordField('Nuova Password', validators=[DataRequired(), Length(min=6)])
+    conferma_password = PasswordField('Conferma Nuova Password', validators=[DataRequired(), EqualTo('nuova_password')])
+    submit = SubmitField('Cambia Password')
