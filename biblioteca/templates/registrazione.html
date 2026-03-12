@@ -6,7 +6,7 @@
     <div class="row justify-content-center">
       <div class="col-md-6">
         <h1>Registrazione Utente</h1>
-        <form method="POST" action="{{ url_for('register') }}">
+        <form method="POST" action="{{ url_for('registrazione') }}">
           {{ form.hidden_tag() }}
           <div class="form-group mb-3">
             {{ form.username.label }}
@@ -23,20 +23,27 @@
             {% endif %}
           </div>
           <div class="form-group mb-3">
-            {{ form.password1.label }}
-            {{ form.password1(class="form-control", size=30) }}
-            {% if form.password1.errors %}
-              <span style="color: red;">{{ form.password1.errors[0] }}</span>
+            {{ form.password.label }}
+            {{ form.password(class="form-control", size=30) }}
+            {% if form.password.errors %}
+              <span style="color: red;">{{ form.password.errors[0] }}</span>
             {% endif %}
           </div>
           <div class="form-group mb-3">
-            {{ form.password2.label }}
-            {{ form.password2(class="form-control", size=30) }}
-            {% if form.password2.errors %}
-              <span style="color: red;">{{ form.password2.errors[0] }}</span>
+            {{ form.confirm_password.label }}
+            {{ form.confirm_password(class="form-control", size=30) }}
+            {% if form.confirm_password.errors %}
+              <span style="color: red;">{{ form.confirm_password.errors[0] }}</span>
             {% endif %}
           </div>
-          <button type="submit" class="btn btn-primary">Crea Account</button>
+          <div class="form-group mb-3">
+            {{ form.ruolo.label }}
+            {{ form.ruolo(class="form-select") }}
+            {% if form.ruolo.errors %}
+              <span style="color: red;">{{ form.ruolo.errors[0] }}</span>
+            {% endif %}
+          </div>
+          {{ form.submit(class="btn btn-primary") }}
         </form>
       </div>
     </div>

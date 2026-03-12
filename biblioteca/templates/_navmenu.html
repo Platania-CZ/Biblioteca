@@ -16,8 +16,25 @@
           <a class="nav-link" href="{{ url_for('dewey') }}">Codifica Dewey</a>
         </li>      
       </ul>
-
-      fine navmenu---------------------------
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <span class="nav-link">Benvenuto, {{ current_user.username }}</span>
+        </li>
+        {% if current_user.is_authenticated %}
+        {% if current_user.is_amministratore %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('registrazione') }}">Registra Utente</a>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+          <a class="nav-link text-danger" href="{{ url_for('logout') }}">Logout</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+        </li>
+        {% endif %}
+      </ul>
     </div>
   </div>
 </nav> 
