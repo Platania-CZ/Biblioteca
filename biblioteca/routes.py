@@ -1,7 +1,7 @@
 from biblioteca import app, db
 from flask import render_template, redirect, url_for, flash, request
 from biblioteca.models import Autore, ClassificazioneDewey, Editore, TipoOpera, Opera, Lettore, Prestito, Utente
-from biblioteca.forms import RegistrazioneForm, LoginForm
+from biblioteca.forms import RegistrazioneForm, LoginForm, ModificaUtenteForm
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy import and_
 from functools import wraps
@@ -127,6 +127,31 @@ def registrazione():
         return redirect(url_for('home'))
     
     return render_template('registrazione.html', form=form)
+
+@app.route('/modifica_utente/<int:utente_id>', methods=['GET', 'POST'])
+@login_amministratore_required
+def modifica_utente(utente_id):
+    utente = Utente.query.get_or_404(utente_id)
+
+    # Inizializza la form con i valori originali per la validazione
+    form = ModificaUtenteForm(
+        original_username=utente.username,
+        original_email=utente.email_address,
+        obj=utente
+    )
+
+    if form.validate_on_submit():
+        utente.username = form.username.data
+        utente.email_address = form.email_address.data
+        utente.ruolo = form.ruolo.data
+        utente.is_amministratore = (form.ruolo.data == 'amministratore')
+
+        db.session.commit()
+        flash(f'Utente {utente.username} modificato con successo!', 'success')
+        return redirect(url_for('gestione_utenti'))
+
+    return render_template('modifica_utente.html', form=form, utente=utente)
+
 
 # Cambio password proprio account (operatore e amministratore)
 @app.route('/cambio-password', methods=['GET', 'POST'])

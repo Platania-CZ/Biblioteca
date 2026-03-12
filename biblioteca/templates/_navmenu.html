@@ -25,9 +25,9 @@
             <a class="nav-link" href="{{ url_for('cambio_password') }}">🔑 Cambia Password</a>
           </li>
           {% if current_user.is_amministratore %}
-            <li class="nav-item">
+           <!-- <li class="nav-item">
               <a class="nav-link" href="{{ url_for('registrazione') }}">Registra Utente</a>
-            </li>
+            </li>-->
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('gestione_utenti') }}">👥 Gestione Utenti</a>
             </li>
