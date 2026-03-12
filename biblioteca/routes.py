@@ -60,8 +60,9 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('Logout effettuato con successo.', 'info')
+    flash('Logout effettuato con successo. Arrivederci!', 'info')
     return redirect(url_for('home'))
+
 
 # ==========================================
 # ROUTE OPERATORE E AMMINISTRATORE
