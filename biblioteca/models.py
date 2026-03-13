@@ -1,6 +1,8 @@
 from biblioteca import db, bcrypt
 from datetime import datetime
 from flask_login import UserMixin
+from .nazionalita_enum import NazionalitaEnum  # Importazione relativa
+from sqlalchemy import UniqueConstraint # Import necessario
 
 #definizione del modello
 class Autore(db.Model):
@@ -8,9 +10,14 @@ class Autore(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
     cognome = db.Column(db.String(100), nullable=False)
-    nazionalita = db.Column(db.String(100), nullable=False)
+    nazionalita = db.Column(db.Enum(NazionalitaEnum), nullable=False)
     data_nascita = db.Column(db.Date, nullable=True)
 
+    # Definizione del vincolo di unicità sulla coppia nome-cognome
+    __table_args__ = (
+        UniqueConstraint('nome', 'cognome', name='_nome_cognome_uc'),
+    )
+    
     # Relazione con le opere scritte
     opere = db.relationship('Opera', backref='autore', lazy=True)
 

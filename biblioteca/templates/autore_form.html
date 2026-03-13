@@ -32,13 +32,13 @@
                         <div class="mb-4">
                             <label for="nazionalita" class="form-label fw-bold">Nazionalità</label>
                             <select class="form-select" id="nazionalita" name="nazionalita" required>
-                                <option value="" disabled {{ 'selected' if not item }}>Seleziona Nazione...</option>
-                                <option value="Italia" {{ 'selected' if item and item.nazionalita == 'Italia' }}>Italia</option>
-                                <option value="Colombia" {{ 'selected' if item and item.nazionalita == 'Colombia' }}>Colombia</option>
-                                <option value="Francia" {{ 'selected' if item and item.nazionalita == 'Francia' }}>Francia</option>
-                                <option value="Spagna" {{ 'selected' if item and item.nazionalita == 'Spagna' }}>Spagna</option>
-                                <option value="Regno Unito" {{ 'selected' if item and item.nazionalita == 'Regno Unito' }}>Regno Unito</option>
-                                <option value="USA" {{ 'selected' if item and item.nazionalita == 'USA' }}>USA</option>
+                                <option value="" disabled {{ 'selected' if not item }}>Seleziona Nazione...</option>                           
+                                    {% for nazione in NazionalitaEnum %}
+                                        <option value="{{ nazione.value }}" 
+                                            {{ 'selected' if item and item.nazionalita == nazione }}>
+                                            {{ nazione.value }}
+                                        </option>
+                                    {% endfor %}
                             </select>
                         </div>
 

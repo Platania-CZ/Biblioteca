@@ -5,6 +5,7 @@ from biblioteca.forms import RegistrazioneForm, LoginForm, ModificaUtenteForm
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy import and_, desc,func
 from functools import wraps
+from .nazionalita_enum import NazionalitaEnum  # Importazione relativa
 
 # ==========================================
 # DECORATORI PERSONALIZZATI
@@ -77,49 +78,110 @@ def opere():
 @app.route('/autori')
 @login_operatore_required
 def autori():
-    items = Autore.query.order_by(func.lower(Autore.cognome), func.lower(Autore.nome)).all()    
-    return render_template('autori.html', items=items)
+    # Il query.all() va bene, l'ordinamento con func.lower è corretto per rendere
+    # l'ordine alfabetico indipendente dalle maiuscole/minuscole
+    items = Autore.query.order_by(func.lower(Autore.cognome), func.lower(Autore.nome)).all()
+    
+    # Passiamo anche NazionalitaEnum se nel template autori.html 
+    # hai filtri o modali che richiedono la lista delle nazioni
+    return render_template('autori.html', items=items, NazionalitaEnum=NazionalitaEnum)
 
 @app.route('/autori/nuovo', methods=['GET', 'POST'])
+@login_operatore_required
 def nuovo_autore():
-    """Gestisce la creazione di un nuovo autore."""
+    """Gestisce la creazione di un nuovo autore con controllo duplicati e pulizia dati."""
     if request.method == 'POST':
-        nome = request.form.get('nome')
-        cognome = request.form.get('cognome')
-        nazionalita = request.form.get('nazionalita')
+        # Recuperiamo e puliamo i dati con .strip()
+        nome = request.form.get('nome', '').strip()
+        cognome = request.form.get('cognome', '').strip()
+        nazionalita_str = request.form.get('nazionalita')
         
-        nuovo = Autore(nome=nome, cognome=cognome, nazionalita=nazionalita)
-        db.session.add(nuovo)
-        db.session.commit()
+        # 1. Controllo preventivo duplicati (Nome + Cognome)
+        autore_esistente = Autore.query.filter_by(nome=nome, cognome=cognome).first()
+        if autore_esistente:
+            flash(f"L'autore {nome} {cognome} esiste già nel database.", "warning")
+            return render_template('autore_form.html', item=None, NazionalitaEnum=NazionalitaEnum)
+
+        try:
+            # 2. Conversione della stringa in oggetto Enum
+            nazionalita_obj = NazionalitaEnum(nazionalita_str)
+            
+            # 3. Creazione del nuovo record
+            nuovo = Autore(
+                nome=nome, 
+                cognome=cognome, 
+                nazionalita=nazionalita_obj
+            )
+            
+            db.session.add(nuovo)
+            db.session.commit()
+            
+            flash('Autore creato con successo!', 'success')
+            return redirect(url_for('autori'))
+            
+        except ValueError:
+            flash('Nazionalità non valida selezionata.', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Errore durante il salvataggio: {str(e)}', 'danger')
         
-        flash('Autore creato con successo!', 'success')
-        return redirect(url_for('autori'))
-        
-    return render_template('autore_form.html', item=None)
+    return render_template('autore_form.html', item=None, NazionalitaEnum=NazionalitaEnum)
 
 @app.route('/autori/dettaglio/<int:id>')
+@login_operatore_required
 def dettaglio_autore(id):
     """Visualizza i dettagli di un singolo autore."""
+    # Recupera l'autore o restituisce errore 404 se non esiste
     autore = Autore.query.get_or_404(id)
-    return render_template('autore_dettaglio.html', item=autore)
+    
+    return render_template('autore_dettaglio.html', 
+                           item=autore, 
+                           NazionalitaEnum=NazionalitaEnum)
 
 @app.route('/autori/modifica/<int:id>', methods=['GET', 'POST'])
+@login_operatore_required
 def modifica_autore(id):
-    """Gestisce la modifica di un autore esistente."""
+    """Gestisce la modifica di un autore esistente con controllo duplicati."""
     autore = Autore.query.get_or_404(id)
     
     if request.method == 'POST':
-        autore.nome = request.form.get('nome')
-        autore.cognome = request.form.get('cognome')
-        autore.nazionalita = request.form.get('nazionalita')
+        # 1. Recupero e pulizia dati
+        nuovo_nome = request.form.get('nome', '').strip()
+        nuovo_cognome = request.form.get('cognome', '').strip()
+        nazionalita_str = request.form.get('nazionalita')
         
-        db.session.commit()
-        flash('Autore aggiornato con successo!', 'info')
-        return redirect(url_for('autori'))
+        # 2. Controllo duplicati: cerchiamo un autore con lo stesso nome e cognome
+        # MA che abbia un ID diverso da quello che stiamo modificando
+        duplicato = Autore.query.filter(
+            Autore.nome == nuovo_nome, 
+            Autore.cognome == nuovo_cognome, 
+            Autore.id != id
+        ).first()
         
-    return render_template('autore_form.html', item=autore)
+        if duplicato:
+            flash(f"Esiste già un altro autore registrato come {nuovo_nome} {nuovo_cognome}!", "warning")
+            return render_template('autore_form.html', item=autore, NazionalitaEnum=NazionalitaEnum)
+
+        try:
+            # 3. Aggiornamento campi
+            autore.nome = nuovo_nome
+            autore.cognome = nuovo_cognome
+            autore.nazionalita = NazionalitaEnum(nazionalita_str)
+            
+            db.session.commit()
+            flash('Autore aggiornato con successo!', 'info')
+            return redirect(url_for('autori'))
+            
+        except ValueError:
+            flash('Errore: Nazionalità non valida selezionata.', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Errore durante l\'aggiornamento: {str(e)}', 'danger')
+        
+    return render_template('autore_form.html', item=autore, NazionalitaEnum=NazionalitaEnum)
 
 @app.route('/autori/elimina/<int:id>', methods=['POST'])
+@login_operatore_required
 def elimina_autore(id):
     """Elimina un autore dal database."""
     autore = Autore.query.get_or_404(id)

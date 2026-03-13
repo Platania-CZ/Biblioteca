@@ -1,30 +1,24 @@
 {% extends "home.html" %}
 
 {% block title %}
-pagina negozio       
+pagina autori       
 {% endblock %}
 
 {% block content %}
 
-<div class="container mt-5">
-    <!-- Header con Pulsante Aggiungi -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary"><i class="bi bi-people-fill"></i> Gestione Autori</h2>
-        <a href="{{ url_for('nuovo_autore') }}" class="btn btn-success shadow-sm">
-            <i class="bi bi-plus-lg"></i> Aggiungi Nuovo Autore
-        </a>
-    </div>
-
+<div class="container mt-2">
     <div class="card shadow">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0">Elenco degli Autori</h3>
-            <span class="badge bg-light text-primary">{{ items|length }} Autori Totali</span>
+            <h6 class="card-title mb-0"><em>Elenco Autori ({{ items|length }})</em></h6>
+            <a href="{{ url_for('nuovo_autore') }}" class="btn btn-success shadow-sm">
+                <i class="bi bi-plus-lg"></i> Aggiungi Nuovo
+            </a> 
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover table-striped align-middle">
                     <thead class="table-dark">
-                        <tr>
+                        <tr style="font-style: italic;">
                             <th scope="col" style="width: 5%">ID</th>
                             <th scope="col">Cognome</th>
                             <th scope="col">Nome</th>
@@ -40,7 +34,7 @@ pagina negozio
                             <td>{{ item.nome }}</td>
                             <td>
                                 <span class="text-uppercase small fw-bold text-muted">
-                                    <i class="bi bi-geo-alt"></i> {{ item.nazionalita }}
+                                    <i class="bi bi-geo-alt"></i> {{ item.nazionalita.value }}
                                 </span>
                             </td>
                             <td class="text-center">
