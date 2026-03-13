@@ -1,0 +1,58 @@
+{% extends "home.html" %}
+
+{% block title %}
+    {% if item %}Modifica Autore{% else %}Nuovo Autore{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header {{ 'bg-warning text-dark' if item else 'bg-success text-white' }} py-3">
+                    <h3 class="mb-0">
+                        <i class="bi {{ 'bi-pencil-square' if item else 'bi-person-plus' }}"></i>
+                        {{ 'Modifica Autore' if item else 'Registra Nuovo Autore' }}
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('modifica_autore', id=item.id) if item else url_for('nuovo_autore') }}" method="POST">
+                        <div class="mb-3">
+                            <label for="nome" class="form-label fw-bold">Nome</label>
+                            <input type="text" class="form-control" id="nome" name="nome" 
+                                   value="{{ item.nome if item else '' }}" required placeholder="Es. Alessandro">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="cognome" class="form-label fw-bold">Cognome</label>
+                            <input type="text" class="form-control" id="cognome" name="cognome" 
+                                   value="{{ item.cognome if item else '' }}" required placeholder="Es. Manzoni">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="nazionalita" class="form-label fw-bold">Nazionalità</label>
+                            <select class="form-select" id="nazionalita" name="nazionalita" required>
+                                <option value="" disabled {{ 'selected' if not item }}>Seleziona Nazione...</option>
+                                <option value="Italia" {{ 'selected' if item and item.nazionalita == 'Italia' }}>Italia</option>
+                                <option value="Colombia" {{ 'selected' if item and item.nazionalita == 'Colombia' }}>Colombia</option>
+                                <option value="Francia" {{ 'selected' if item and item.nazionalita == 'Francia' }}>Francia</option>
+                                <option value="Spagna" {{ 'selected' if item and item.nazionalita == 'Spagna' }}>Spagna</option>
+                                <option value="Regno Unito" {{ 'selected' if item and item.nazionalita == 'Regno Unito' }}>Regno Unito</option>
+                                <option value="USA" {{ 'selected' if item and item.nazionalita == 'USA' }}>USA</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn {{ 'btn-warning' if item else 'btn-success' }} btn-lg">
+                                <i class="bi bi-check-circle"></i> 
+                                {{ 'Aggiorna Autore' if item else 'Salva Autore' }}
+                            </button>
+                            <a href="{{ url_for('autori') }}" class="btn btn-light text-muted">Annulla</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

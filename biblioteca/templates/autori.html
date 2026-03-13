@@ -7,50 +7,72 @@ pagina negozio
 {% block content %}
 
 <div class="container mt-5">
+    <!-- Header con Pulsante Aggiungi -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary"><i class="bi bi-people-fill"></i> Gestione Autori</h2>
+        <a href="{{ url_for('nuovo_autore') }}" class="btn btn-success shadow-sm">
+            <i class="bi bi-plus-lg"></i> Aggiungi Nuovo Autore
+        </a>
+    </div>
+
     <div class="card shadow">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h3 class="card-title mb-0">Elenco degli Autori</h3>
+            <span class="badge bg-light text-primary">{{ items|length }} Autori Totali</span>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover table-striped align-middle">
                     <thead class="table-dark">
                         <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Nome</th>
+                            <th scope="col" style="width: 5%">ID</th>
                             <th scope="col">Cognome</th>
+                            <th scope="col">Nome</th>
                             <th scope="col">Nazione</th>
-                            <th scope="col" class="text-center">Azioni</th>
+                            <th scope="col" class="text-center" style="width: 25%">Azioni</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {# Inizio ciclo Jinja2 #}
                         {% for item in items %}
                         <tr>
-                            <td>{{ item.id }}</td>
-                            <td><strong>{{ item.nome }}</strong></td>
-                            <td>{{ item.cognome }}</td>
-                            <td>{{ item.nazionalita }}</td>
+                            <td><span class="badge rounded-pill bg-light">{{ item.id }}</span></td>
+                            <td><strong>{{ item.cognome }}</strong></td>
+                            <td>{{ item.nome }}</td>
+                            <td>
+                                <span class="text-uppercase small fw-bold text-muted">
+                                    <i class="bi bi-geo-alt"></i> {{ item.nazionalita }}
+                                </span>
+                            </td>
                             <td class="text-center">
-                                <div class="d-grid gap-2 d-md-block">
-                                    <!-- Esempio di link dinamici con url_for -->
-                                    <a href="#" class="btn btn-sm btn-info text-white">
-                                        Dettaglio
+                                <div class="d-flex justify-content-center gap-1" role="group" aria-label="Azioni autore">
+                                    
+                                    <!-- READ / DETTAGLIO -->
+                                    <a href="{{ url_for('dettaglio_autore', id=item.id) }}" 
+                                    class="btn btn-sm btn-info text-white d-inline-flex align-items-center" 
+                                    title="Visualizza Dettagli">
+                                        <i class="bi bi-eye me-1"></i> Dettaglio
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-outline-primary">
-                                        Seleziona
-                                    </button>
+
+                                    <!-- UPDATE / MODIFICA -->
+                                    <a href="{{ url_for('modifica_autore', id=item.id) }}" 
+                                    class="btn btn-sm btn-warning d-inline-flex align-items-center" 
+                                    title="Modifica">
+                                        <i class="bi bi-pencil me-1"></i> Modifica
+                                    </a>
                                 </div>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="5" class="text-center text-muted italic">
-                                Nessun elemento presente in lista.
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block"></i>
+                                    <p class="mt-2">Nessun autore trovato nel database.</p>
+                                    <a href="{{ url_for('nuovo_autore') }}" class="btn btn-sm btn-outline-primary">Aggiungi il primo</a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
-                        {# Fine ciclo Jinja2 #}
                     </tbody>
                 </table>
             </div>

@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, flash, request
 from biblioteca.models import Autore, ClassificazioneDewey, Editore, TipoOpera, Opera, Lettore, Prestito, Utente
 from biblioteca.forms import RegistrazioneForm, LoginForm, ModificaUtenteForm
 from flask_login import login_user, logout_user, login_required, current_user
-from sqlalchemy import and_
+from sqlalchemy import and_, desc,func
 from functools import wraps
 
 # ==========================================
@@ -77,8 +77,56 @@ def opere():
 @app.route('/autori')
 @login_operatore_required
 def autori():
-    items = Autore.query.all()
+    items = Autore.query.order_by(func.lower(Autore.cognome), func.lower(Autore.nome)).all()    
     return render_template('autori.html', items=items)
+
+@app.route('/autori/nuovo', methods=['GET', 'POST'])
+def nuovo_autore():
+    """Gestisce la creazione di un nuovo autore."""
+    if request.method == 'POST':
+        nome = request.form.get('nome')
+        cognome = request.form.get('cognome')
+        nazionalita = request.form.get('nazionalita')
+        
+        nuovo = Autore(nome=nome, cognome=cognome, nazionalita=nazionalita)
+        db.session.add(nuovo)
+        db.session.commit()
+        
+        flash('Autore creato con successo!', 'success')
+        return redirect(url_for('autori'))
+        
+    return render_template('autore_form.html', item=None)
+
+@app.route('/autori/dettaglio/<int:id>')
+def dettaglio_autore(id):
+    """Visualizza i dettagli di un singolo autore."""
+    autore = Autore.query.get_or_404(id)
+    return render_template('autore_dettaglio.html', item=autore)
+
+@app.route('/autori/modifica/<int:id>', methods=['GET', 'POST'])
+def modifica_autore(id):
+    """Gestisce la modifica di un autore esistente."""
+    autore = Autore.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        autore.nome = request.form.get('nome')
+        autore.cognome = request.form.get('cognome')
+        autore.nazionalita = request.form.get('nazionalita')
+        
+        db.session.commit()
+        flash('Autore aggiornato con successo!', 'info')
+        return redirect(url_for('autori'))
+        
+    return render_template('autore_form.html', item=autore)
+
+@app.route('/autori/elimina/<int:id>', methods=['POST'])
+def elimina_autore(id):
+    """Elimina un autore dal database."""
+    autore = Autore.query.get_or_404(id)
+    db.session.delete(autore)
+    db.session.commit()
+    flash('Autore eliminato.', 'danger')
+    return redirect(url_for('autori'))
 
 @app.route('/lettori')
 @login_operatore_required

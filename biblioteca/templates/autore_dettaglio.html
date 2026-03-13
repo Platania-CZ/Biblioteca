@@ -1,0 +1,64 @@
+{% extends "home.html" %}
+
+{% block title %}Dettaglio Autore{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('autori') }}">Autori</a></li>
+            <li class="breadcrumb-item active">{{ item.nome }} {{ item.cognome }}</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow border-0">
+        <div class="card-header bg-info text-white py-3">
+            <h3 class="mb-0"><i class="bi bi-person-badge"></i> Profilo Autore</h3>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-4 text-center border-end">
+                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px;">
+                        <i class="bi bi-person-fill text-secondary" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4>{{ item.nome }} {{ item.cognome }}</h4>
+                    <span class="badge bg-primary px-3">{{ item.nazionalita }}</span>
+                </div>
+                <div class="col-md-8">
+                    <h5 class="text-muted mb-4">Informazioni Registrate</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Identificativo (ID):</strong> 
+                            <span>#{{ item.id }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Nome Completo:</strong> 
+                            <span>{{ item.nome }} {{ item.cognome }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Nazionalità:</strong> 
+                            <span>{{ item.nazionalita }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer bg-light d-flex justify-content-end gap-2 py-3">
+            <a href="{{ url_for('autori') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Torna alla lista
+            </a>
+            <a href="{{ url_for('modifica_autore', id=item.id) }}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Modifica
+            </a>
+            <form action="{{ url_for('elimina_autore', id=item.id) }}" method="POST" 
+                class="d-inline"
+                onsubmit="return confirm('Sei sicuro di voler eliminare questo autore?');">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Elimina
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
