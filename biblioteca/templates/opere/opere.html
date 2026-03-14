@@ -32,12 +32,12 @@ pagina opere
                         <tr>
                             <td>{{ item.id }}</td>
                             <td><strong>{{ item.titolo }}</strong></td>
-                            <td>{{ item.autore }}</td>
+                            <td>{{ item.autore.nome }} {{ item.autore.cognome }}</td>
                             <td>{{ item.anno_pubblicazione }}</td>
                             <td class="text-center">
                                 <div class="d-grid gap-2 d-md-block">
                                     <!-- Esempio di link dinamici con url_for -->
-                                    <a href="#" class="btn btn-sm btn-info text-white">
+                                    <a href="{{ url_for('dettaglio_opera', id=item.id) }}" class="btn btn-sm btn-info text-white">
                                         Dettaglio
                                     </a>
                                     <button type="button" class="btn btn-sm btn-outline-primary">

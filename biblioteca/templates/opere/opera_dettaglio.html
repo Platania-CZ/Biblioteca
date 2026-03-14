@@ -1,0 +1,119 @@
+{% extends "home.html" %}
+
+{% block title %}Dettaglio Autore{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0">
+                <i class="bi bi-book"></i> <em>Dettaglio Opera: {{ item.titolo }}</em>
+            </h5>
+        </div>
+        
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-4 text-center border-end">
+                    <div class="rounded bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 160px; border: 2px dashed #dee2e6;">
+                        <i class="bi bi-journal-bookmark-fill text-secondary" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4>{{ item.titolo }}</h4>
+                    <p class="text-muted">di {{ item.autore.nome }} {{ item.autore.cognome }}</p>
+                    <div class="d-flex flex-wrap justify-content-center gap-1">
+                        <span class="badge bg-info text-dark">{{ item.tipo.nome }}</span>
+                        {% if item.id_dewey %}
+                            <span class="badge bg-dark">Dewey: {{ item.dewey.sezione_principale }}{{ item.dewey.sottosezione if item.dewey.sottosezione else '0' }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <h5 class="text-primary mb-3">Scheda Tecnica</h5>
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Codice Sistema (ID):</strong> 
+                            <span>#{{ item.id }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>ISBN Generale:</strong> 
+                            <span>{{ item.isbn_generale if item.isbn_generale else 'N/D' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Classificazione:</strong> 
+                            <span>
+                                {% if item.id_dewey %}
+                                    {{ item.dewey.descrizione }} - {{ item.dewey.descrizione_sottosezione if item.dewey.descrizione_sottosezione else '' }}
+                                {% else %}
+                                    Non classificata
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Note:</strong><br>
+                            <small class="text-muted">{{ item.note if item.note else 'Nessuna nota presente.' }}</small>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="text-primary mb-0">Copie Fisiche in Biblioteca</h5>
+                        <a href="{{ url_for('nuova_copia', id_opera=item.id) }}" class="btn btn-sm btn-success">
+                            <i class="bi bi-plus-circle"></i> Aggiungi Copia
+                        </a>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Editore</th>
+                                    <th>Posizione</th>
+                                    <th>Stato</th>
+                                    <th class="text-end">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for copia in item.copie %}
+                                <tr>
+                                    <td><small class="text-muted">#{{ copia.id }}</small></td>
+                                    <td>{{ copia.id_editore }}</td> <td><span class="badge bg-light text-dark border">{{ copia.posizione_scaffale }}</span></td>
+                                    <td>
+                                        <span class="badge {{ 'bg-success' if copia.stato == 'Disponibile' else 'bg-warning text-dark' }}">
+                                            {{ copia.stato }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{{ url_for('dettaglio_copia', id=copia.id) }}" class="btn btn-sm btn-outline-primary py-0">Info</a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted small py-3">Nessuna copia fisica registrata per questa opera.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-end gap-2 py-3">
+            <a href="{{ url_for('opere') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Lista Opere
+            </a>
+            <a href="{{ url_for('modifica_opera', id=item.id) }}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Modifica
+            </a>
+            <form action="{{ url_for('elimina_opera', id=item.id) }}" method="POST" 
+                class="d-inline"
+                onsubmit="return confirm('ATTENZIONE: Eliminando l\'opera verranno eliminate anche tutte le copie fisiche collegate. Procedere?');">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Elimina
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

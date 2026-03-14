@@ -1,4 +1,4 @@
-from biblioteca import app, db
+from biblioteca import db
 from flask import render_template, redirect, url_for, flash, request
 from biblioteca.models import Autore, ClassificazioneDewey, Editore, TipoOpera, Opera, Lettore, Prestito, Utente
 from biblioteca.forms import RegistrazioneForm, LoginForm, ModificaUtenteForm
@@ -236,7 +236,7 @@ def nuova_opera():
             
             flash(f"Opera '{titolo}' creata con successo!", 'success')
             # Reindirizziamo all'elenco opere o al dettaglio della nuova opera
-            return redirect(url_for('elenco_opere'))
+            return redirect(url_for('opere'))
             
         except Exception as e:
             db.session.rollback()
