@@ -1,0 +1,104 @@
+{% extends "home.html" %}
+
+{% block title %}
+    {% if item %}Modifica Autore{% else %}Nuovo Autore{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow">
+                <div class="card-header {{ 'bg-warning text-dark' if item else 'bg-primary text-white' }} py-3">
+                    <h3 class="mb-0">
+                        <i class="bi {{ 'bi-pencil-square' if item else 'bi-book' }}"></i>
+                        {{ 'Modifica Opera' if item else 'Registra Nuova Opera' }}
+                    </h3>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form action="{{ url_for('modifica_opera', id=item.id) if item else url_for('nuova_opera') }}" method="POST">
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="titolo" class="form-label fw-bold">Titolo Opera</label>
+                                <input type="text" class="form-control" id="titolo" name="titolo" 
+                                       value="{{ item.titolo if item else '' }}" required placeholder="Es. I Promessi Sposi">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_autore" class="form-label fw-bold">Autore</label>
+                                <select class="form-select" id="id_autore" name="id_autore" required>
+                                    <option value="" disabled {{ 'selected' if not item }}>Seleziona Autore...</option>
+                                    {% for autore in autori_list %}
+                                        <option value="{{ autore.id }}" 
+                                            {{ 'selected' if item and item.id_autore == autore.id }}>
+                                            {{ autore.cognome }} {{ autore.nome }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_tipo_opera" class="form-label fw-bold">Tipo di Opera</label>
+                                <select class="form-select" id="id_tipo_opera" name="id_tipo_opera" required>
+                                    <option value="" disabled {{ 'selected' if not item }}>Seleziona Tipo...</option>
+                                    {% for tipo in tipi_list %}
+                                        <option value="{{ tipo.id }}" 
+                                            {{ 'selected' if item and item.id_tipo_opera == tipo.id }}>
+                                            {{ tipo.nome }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_dewey" class="form-label fw-bold">Classificazione Dewey</label>
+                                <select class="form-select" id="id_dewey" name="id_dewey">
+                                    <option value="">Nessuna (Opzionale)</option>
+                                    {% for d in dewey_list %}
+                                        <option value="{{ d.id }}" 
+                                            {{ 'selected' if item and item.id_dewey == d.id }}>
+                                            {{ d.id }} - {{ d.descrizione }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="isbn_generale" class="form-label fw-bold">ISBN Generale</label>
+                                <input type="text" class="form-control" id="isbn_generale" name="isbn_generale" 
+                                       value="{{ item.isbn_generale if item else '' }}" placeholder="Es. 978-88...">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="note" class="form-label fw-bold">Note / Descrizione</label>
+                            <textarea class="form-control" id="note" name="note" rows="3" 
+                                      placeholder="Note aggiuntive sull'opera...">{{ item.note if item else '' }}</textarea>
+                        </div>
+
+                        {% if not item %}
+                        <div class="alert alert-info border-0 shadow-sm mb-4">
+                            <h5 class="alert-heading"><i class="bi bi-info-circle"></i> Nota</h5>
+                            <p class="mb-0 small">Dopo aver salvato l'opera, potrai aggiungere le singole copie fisiche (edizione, scaffale, editore) dalla pagina di dettaglio.</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn {{ 'btn-warning' if item else 'btn-primary' }} btn-lg">
+                                <i class="bi bi-check-circle"></i> 
+                                {{ 'Aggiorna Opera' if item else 'Salva Opera' }}
+                            </button>
+                            <a href="{{ url_for('opere') }}" class="btn btn-light text-muted">Annulla</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

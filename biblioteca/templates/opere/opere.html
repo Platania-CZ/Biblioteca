@@ -6,10 +6,13 @@ pagina opere
 
 {% block content %}
 
-<div class="container mt-5">
+<div class="container mt-2">
     <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h3 class="card-title mb-0">Elenco Opere Letterarie</h3>
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h6 class="card-title mb-0"><em>Elenco Opere ({{ items|length }})</em></h6>
+            <a href="{{ url_for('nuova_opera') }}" class="btn btn-success shadow-sm">
+                <i class="bi bi-plus-lg"></i> Aggiungi Nuova
+            </a> 
         </div>
         <div class="card-body">
             <div class="table-responsive">

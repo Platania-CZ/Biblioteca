@@ -60,6 +60,36 @@ with app.app_context():
                         descrizione_sottosezione=desc
                     )
                 db.session.add(entry)
-        
         db.session.commit()
         print("Database e Dewey pronti con descrizioni dettagliate!")
+
+    # 4. Popolamento Tipi Opera (solo se la tabella è vuota)
+    if TipoOpera.query.count() == 0:
+        print("Popolamento tipi opera in corso...")
+        
+        # Lista di categorie standard per una biblioteca
+        tipi_nomi = [
+            'Romanzo', 
+            'Saggio', 
+            'Manuale', 
+            'Rivista', 
+            'Fumetto/Graphic Novel', 
+            'Poesia', 
+            'Dizionario/Enciclopedia', 
+            'Biografia', 
+            'Testo Scolastico',
+            'Altro'
+        ]
+
+        for nome_tipo in tipi_nomi:
+            nuovo_tipo = TipoOpera(nome=nome_tipo)
+            db.session.add(nuovo_tipo)
+        
+        try:
+            db.session.commit()
+            print(f"Inseriti {len(tipi_nomi)} tipi opera nel database!")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Errore durante il popolamento Tipi Opera: {e}")
+        
+

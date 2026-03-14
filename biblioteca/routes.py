@@ -55,7 +55,7 @@ def login():
             return redirect(url_for('home'))
         else:
             flash('Username o password errati.', 'danger')
-    return render_template('login.html', form=form)
+    return render_template('auth/login.html', form=form)
 
 @app.route('/logout')
 @login_required
@@ -73,7 +73,7 @@ def logout():
 @login_operatore_required
 def opere():
     items = Opera.query.all()
-    return render_template('opere.html', items=items)
+    return render_template('opere/opere.html', items=items)
 
 @app.route('/autori')
 @login_operatore_required
@@ -84,7 +84,7 @@ def autori():
     
     # Passiamo anche NazionalitaEnum se nel template autori.html 
     # hai filtri o modali che richiedono la lista delle nazioni
-    return render_template('autori.html', items=items, NazionalitaEnum=NazionalitaEnum)
+    return render_template('autori/autori.html', items=items, NazionalitaEnum=NazionalitaEnum)
 
 @app.route('/autori/nuovo', methods=['GET', 'POST'])
 @login_operatore_required
@@ -100,7 +100,7 @@ def nuovo_autore():
         autore_esistente = Autore.query.filter_by(nome=nome, cognome=cognome).first()
         if autore_esistente:
             flash(f"L'autore {nome} {cognome} esiste già nel database.", "warning")
-            return render_template('autore_form.html', item=None, NazionalitaEnum=NazionalitaEnum)
+            return render_template('autori/autore_form.html', item=None, NazionalitaEnum=NazionalitaEnum)
 
         try:
             # 2. Conversione della stringa in oggetto Enum
@@ -125,7 +125,7 @@ def nuovo_autore():
             db.session.rollback()
             flash(f'Errore durante il salvataggio: {str(e)}', 'danger')
         
-    return render_template('autore_form.html', item=None, NazionalitaEnum=NazionalitaEnum)
+    return render_template('autori/autore_form.html', item=None, NazionalitaEnum=NazionalitaEnum)
 
 @app.route('/autori/dettaglio/<int:id>')
 @login_operatore_required
@@ -134,7 +134,7 @@ def dettaglio_autore(id):
     # Recupera l'autore o restituisce errore 404 se non esiste
     autore = Autore.query.get_or_404(id)
     
-    return render_template('autore_dettaglio.html', 
+    return render_template('autori/autore_dettaglio.html', 
                            item=autore, 
                            NazionalitaEnum=NazionalitaEnum)
 
@@ -160,7 +160,7 @@ def modifica_autore(id):
         
         if duplicato:
             flash(f"Esiste già un altro autore registrato come {nuovo_nome} {nuovo_cognome}!", "warning")
-            return render_template('autore_form.html', item=autore, NazionalitaEnum=NazionalitaEnum)
+            return render_template('autori/autore_form.html', item=autore, NazionalitaEnum=NazionalitaEnum)
 
         try:
             # 3. Aggiornamento campi
@@ -178,7 +178,7 @@ def modifica_autore(id):
             db.session.rollback()
             flash(f'Errore durante l\'aggiornamento: {str(e)}', 'danger')
         
-    return render_template('autore_form.html', item=autore, NazionalitaEnum=NazionalitaEnum)
+    return render_template('autori/autore_form.html', item=autore, NazionalitaEnum=NazionalitaEnum)
 
 @app.route('/autori/elimina/<int:id>', methods=['POST'])
 @login_operatore_required
@@ -189,6 +189,65 @@ def elimina_autore(id):
     db.session.commit()
     flash('Autore eliminato.', 'danger')
     return redirect(url_for('autori'))
+
+# opere
+@app.route('/opere/nuova', methods=['GET', 'POST'])
+@login_operatore_required
+def nuova_opera():
+    """Gestisce la creazione di una nuova opera con caricamento delle relazioni."""
+    
+    # Carichiamo i dati per i menu a tendina (necessari sia per GET che per POST in caso di errore)
+    autori = Autore.query.order_by(Autore.cognome).all()
+    tipi = TipoOpera.query.order_by(TipoOpera.nome).all()
+    classi_dewey = ClassificazioneDewey.query.order_by(ClassificazioneDewey.id).all()
+
+    if request.method == 'POST':
+        # Recupero e pulizia dati
+        titolo = request.form.get('titolo', '').strip()
+        id_autore = request.form.get('id_autore')
+        id_tipo_opera = request.form.get('id_tipo_opera')
+        id_dewey = request.form.get('id_dewey')  # Può essere None (nullable)
+        isbn_generale = request.form.get('isbn_generale', '').strip()
+        note = request.form.get('note', '').strip()
+
+        # 1. Controllo preventivo duplicati (Stesso titolo per lo stesso autore)
+        opera_esistente = Opera.query.filter_by(titolo=titolo, id_autore=id_autore).first()
+        if opera_esistente:
+            flash(f"L'opera '{titolo}' per questo autore esiste già nel database.", "warning")
+            return render_template('opere/opera_form.html', 
+                                 item=None, 
+                                 autori_list=autori, 
+                                 tipi_list=tipi, 
+                                 dewey_list=classi_dewey)
+
+        try:
+            # 2. Creazione del nuovo record Opera
+            nuova = Opera(
+                titolo=titolo,
+                id_autore=id_autore,
+                id_tipo_opera=id_tipo_opera,
+                id_dewey=id_dewey if id_dewey else None, # Gestisce il caso vuoto
+                isbn_generale=isbn_generale if isbn_generale else None,
+                note=note if note else None
+            )
+            
+            db.session.add(nuova)
+            db.session.commit()
+            
+            flash(f"Opera '{titolo}' creata con successo!", 'success')
+            # Reindirizziamo all'elenco opere o al dettaglio della nuova opera
+            return redirect(url_for('elenco_opere'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Errore durante il salvataggio: {str(e)}', 'danger')
+        
+    # GET: Caricamento del form vuoto
+    return render_template('opere/opera_form.html', 
+                           item=None, 
+                           autori_list=autori, 
+                           tipi_list=tipi, 
+                           dewey_list=classi_dewey)
 
 @app.route('/lettori')
 @login_operatore_required
@@ -218,7 +277,7 @@ def tipi_opere():
 @login_operatore_required
 def dewey():
     items = ClassificazioneDewey.query.all()
-    return render_template('dewey.html', items=items)
+    return render_template('dewey/dewey.html', items=items)
 
 # solo amministratore
 @app.route('/registrazione', methods=['GET', 'POST'])
@@ -237,7 +296,7 @@ def registrazione():
         flash(f'Utente {nuovo_utente.username} registrato con successo!', 'success')
         return redirect(url_for('home'))
     
-    return render_template('registrazione.html', form=form)
+    return render_template('admin/registrazione.html', form=form)
 
 @app.route('/modifica_utente/<int:utente_id>', methods=['GET', 'POST'])
 @login_amministratore_required
@@ -261,7 +320,7 @@ def modifica_utente(utente_id):
         flash(f'Utente {utente.username} modificato con successo!', 'success')
         return redirect(url_for('gestione_utenti'))
 
-    return render_template('modifica_utente.html', form=form, utente=utente)
+    return render_template('admin/modifica_utente.html', form=form, utente=utente)
 
 
 # Cambio password proprio account (operatore e amministratore)
@@ -278,7 +337,7 @@ def cambio_password():
         db.session.commit()
         flash('Password cambiata con successo!', 'success')
         return redirect(url_for('home'))
-    return render_template('cambio_password.html', form=form, utente=current_user)
+    return render_template('auth/cambio_password.html', form=form, utente=current_user)
 
 # Cambio password altrui (solo amministratore)
 @app.route('/cambio-password/<int:utente_id>', methods=['GET', 'POST'])
@@ -292,11 +351,11 @@ def cambio_password_admin(utente_id):
         db.session.commit()
         flash(f'Password di {utente.username} cambiata con successo!', 'success')
         return redirect(url_for('gestione_utenti'))
-    return render_template('cambio_password.html', form=form, utente=utente)
+    return render_template('auth/cambio_password.html', form=form, utente=utente)
 
 # Lista utenti (solo amministratore)
 @app.route('/gestione-utenti')
 @login_amministratore_required
 def gestione_utenti():
     utenti = Utente.query.all()
-    return render_template('gestione_utenti.html', utenti=utenti)
+    return render_template('admin/gestione_utenti.html', utenti=utenti)
