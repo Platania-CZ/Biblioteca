@@ -1,0 +1,23 @@
+# Virtual environment
+myvenv/
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# VSCode
+.vscode/settings.json
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Database locale
+*.db
+*.sqlite
+
+# Credenziali - MAI su GitHub
+.env
