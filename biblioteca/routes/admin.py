@@ -13,7 +13,7 @@ def login_amministratore_required(f):
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:
             flash('Effettua il login per accedere.', 'info')
-            return redirect(url_for('gestione.login'))
+            return redirect(url_for('auth.login'))
         if not current_user.is_amministratore:
             flash('Accesso riservato agli amministratori.', 'danger')
             return redirect(url_for('main.index'))

@@ -12,7 +12,7 @@ login_manager = LoginManager()
 
 # Configurazione globale per Flask-Login
 # 'gestione.login' perché la rotta login ora è dentro il blueprint gestione_bp
-login_manager.login_view = 'gestione.login'
+login_manager.login_view = 'auth.login'
 login_manager.login_message = "Effettua il login per accedere a questa pagina."
 login_manager.login_message_category = 'info'
 
