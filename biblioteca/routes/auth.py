@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
-from biblioteca import db, bcrypt
+from biblioteca import bcrypt
 from biblioteca.models import Utente
 from functools import wraps
 

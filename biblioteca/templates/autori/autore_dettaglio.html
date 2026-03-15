@@ -37,13 +37,13 @@
             </div>
         </div>
         <div class="card-footer bg-light d-flex justify-content-end gap-2 py-3">
-            <a href="{{ url_for('autori') }}" class="btn btn-outline-secondary">
+            <a href="{{ url_for('autori.elenco_autori') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Torna alla lista
             </a>
-            <a href="{{ url_for('modifica_autore', id=item.id) }}" class="btn btn-warning">
+            <a href="{{ url_for('autori.modifica_autore', id=item.id) }}" class="btn btn-warning">
                 <i class="bi bi-pencil"></i> Modifica
             </a>
-            <form action="{{ url_for('elimina_autore', id=item.id) }}" method="POST" 
+            <form action="{{ url_for('autori.elimina_autore', id=item.id) }}" method="POST" 
                 class="d-inline"
                 onsubmit="return confirm('Sei sicuro di voler eliminare questo autore?');">
                 <button type="submit" class="btn btn-danger">

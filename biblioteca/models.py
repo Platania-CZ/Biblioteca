@@ -1,7 +1,7 @@
 from biblioteca import db, bcrypt
 from datetime import datetime
 from flask_login import UserMixin
-from .nazionalita_enum import NazionalitaEnum  # Importazione relativa
+from .routes.nazionalita_enum import NazionalitaEnum  # Importazione relativa
 from sqlalchemy import UniqueConstraint # Import necessario
 
 #definizione del modello

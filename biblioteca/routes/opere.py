@@ -66,22 +66,3 @@ def dettaglio_opera(id):
     item = Opera.query.get_or_404(id)
     return render_template('opere/opera_dettaglio.html', item=item)
 
-# --- ROTTE TABELLE DI SUPPORTO ---
-
-@opere_bp.route('/editori')
-@login_operatore_required
-def editori():
-    items = Editore.query.all()
-    return render_template('editori.html', items=items)
-
-@opere_bp.route('/tipi_opere')
-@login_operatore_required
-def tipi_opere():
-    items = TipoOpera.query.all()
-    return render_template('tipi_opere.html', items=items)
-
-@opere_bp.route('/dewey')
-@login_operatore_required
-def dewey():
-    items = ClassificazioneDewey.query.all()
-    return render_template('dewey/dewey.html', items=items)

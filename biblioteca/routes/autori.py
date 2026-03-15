@@ -1,87 +1,96 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from biblioteca import db
-from biblioteca.models import Autore, TipoOpera, ClassificazioneDewey, Opera, Editore, Copia
+from biblioteca.models import Autore, TipoOpera, ClassificazioneDewey
 from biblioteca.routes.auth import login_operatore_required
-from sqlalchemy import func
 
 # Definizione del Blueprint
-opere_bp = Blueprint('opere', __name__)
+autori_bp = Blueprint('autori', __name__)
 
-# --- ROTTE OPERE ---
-
-@opere_bp.route('/opere')
+# --- ROTTE AUTORI ---
+@autori_bp.route('/autori')
 @login_operatore_required
-def elenco_opere():
-    """Visualizza l'elenco di tutte le opere."""
-    items = Opera.query.all()
-    return render_template('opere/opere.html', items=items)
+def elenco_autori():
+    """Visualizza l'elenco di tutti gli autori."""
+    items = Autore.query.all()
+    return render_template('autori/autori.html', items=items)
 
-@opere_bp.route('/opere/nuova', methods=['GET', 'POST'])
+@autori_bp.route('/autori/nuovo', methods=['GET', 'POST'])
 @login_operatore_required
-def nuova_opera():
-    """Crea una nuova opera con gestione relazioni."""
+def nuovo_autore():
+    """Crea un nuovo autore."""
+
     autori = Autore.query.order_by(Autore.cognome).all()
     tipi = TipoOpera.query.order_by(TipoOpera.nome).all()
     classi_dewey = ClassificazioneDewey.query.order_by(ClassificazioneDewey.id).all()
 
     if request.method == 'POST':
-        titolo = request.form.get('titolo', '').strip()
-        id_autore = request.form.get('id_autore')
-        id_tipo_opera = request.form.get('id_tipo_opera')
-        id_dewey = request.form.get('id_dewey')
-        isbn_generale = request.form.get('isbn_generale', '').strip()
+        nome = request.form.get('nome', '').strip()
+        cognome = request.form.get('cognome', '').strip()
+        data_nascita = request.form.get('data_nascita')
+        luogo_nascita = request.form.get('luogo_nascita', '').strip()
         note = request.form.get('note', '').strip()
 
         # Controllo duplicati
-        opera_esistente = Opera.query.filter_by(titolo=titolo, id_autore=id_autore).first()
-        if opera_esistente:
-            flash(f"L'opera '{titolo}' per questo autore esiste già.", "warning")
-            return render_template('opere/opera_form.html', item=None, 
+        autore_esistente = Autore.query.filter_by(nome=nome, cognome=cognome).first()
+        if autore_esistente:
+            flash(f"L'autore '{nome} {cognome}' esiste già.", "warning")
+            return render_template('autori/autore_form.html', item=None, 
                                  autori_list=autori, tipi_list=tipi, dewey_list=classi_dewey)
 
         try:
-            nuova = Opera(
-                titolo=titolo,
-                id_autore=id_autore,
-                id_tipo_opera=id_tipo_opera,
-                id_dewey=id_dewey if id_dewey else None,
-                isbn_generale=isbn_generale if isbn_generale else None,
+            nuova = Autore(
+                nome=nome,
+                cognome=cognome,
+                data_nascita=data_nascita,
+                luogo_nascita=luogo_nascita,
                 note=note if note else None
             )
             db.session.add(nuova)
             db.session.commit()
-            flash(f"Opera '{titolo}' creata con successo!", 'success')
-            return redirect(url_for('opere.elenco_opere'))
+            flash(f"Autore '{nome} {cognome}' creato con successo!", 'success')
+            return redirect(url_for('autori.elenco_autori'))
         except Exception as e:
             db.session.rollback()
             flash(f'Errore durante il salvataggio: {str(e)}', 'danger')
         
-    return render_template('opere/opera_form.html', item=None, 
+    return render_template('autori/autore_form.html', item=None, 
                            autori_list=autori, tipi_list=tipi, dewey_list=classi_dewey)
 
-@opere_bp.route('/opere/dettaglio/<int:id>')
+@autori_bp.route('/autori/dettaglio/<int:id>')
 @login_operatore_required
-def dettaglio_opera(id):
+def dettaglio_autore(id):
     """Visualizza i dettagli dell'opera e le sue copie."""
-    item = Opera.query.get_or_404(id)
-    return render_template('opere/opera_dettaglio.html', item=item)
+    item = Autore.query.get_or_404(id)
+    return render_template('autori/autore_dettaglio.html', item=item)
 
-# --- ROTTE TABELLE DI SUPPORTO ---
-
-@opere_bp.route('/editori')
+@autori_bp.route('/autori/modifica/<int:id>', methods=['GET', 'POST'])
 @login_operatore_required
-def editori():
-    items = Editore.query.all()
-    return render_template('editori.html', items=items)
+def modifica_autore(id):
+    autore = Autore.query.get_or_404(id)
+    if request.method == 'POST':
+        try:
+            autore.nome = request.form.get('nome', '').strip()
+            autore.cognome = request.form.get('cognome', '').strip()
+            autore.data_nascita = request.form.get('data_nascita') or None
+            autore.luogo_nascita = request.form.get('luogo_nascita', '').strip()
+            autore.note = request.form.get('note', '').strip() or None
+            db.session.commit()
+            flash('Autore aggiornato.', 'info')
+            return redirect(url_for('autori.elenco_autori'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Errore: {str(e)}', 'danger')
+    return render_template('autori/autore_form.html', item=autore)
 
-@opere_bp.route('/tipi_opere')
+@autori_bp.route('/autori/elimina/<int:id>', methods=['POST'])
 @login_operatore_required
-def tipi_opere():
-    items = TipoOpera.query.all()
-    return render_template('tipi_opere.html', items=items)
-
-@opere_bp.route('/dewey')
-@login_operatore_required
-def dewey():
-    items = ClassificazioneDewey.query.all()
-    return render_template('dewey/dewey.html', items=items)
+def elimina_autore(id):
+    autore = Autore.query.get_or_404(id)
+    try:
+        db.session.delete(autore)
+        db.session.commit()
+        flash(f'Autore {autore.nome} {autore.cognome} eliminato.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Errore durante eliminazione: {str(e)}', 'danger')
+    return redirect(url_for('autori.elenco_autori'))

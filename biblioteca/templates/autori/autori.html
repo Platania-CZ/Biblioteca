@@ -10,7 +10,7 @@ pagina autori
     <div class="card shadow">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h6 class="card-title mb-0"><em>Elenco Autori ({{ items|length }})</em></h6>
-            <a href="{{ url_for('nuovo_autore') }}" class="btn btn-success shadow-sm">
+            <a href="{{ url_for('autori.nuovo_autore') }}" class="btn btn-success shadow-sm">
                 <i class="bi bi-plus-lg"></i> Aggiungi Nuovo
             </a> 
         </div>
@@ -41,14 +41,14 @@ pagina autori
                                 <div class="d-flex justify-content-center gap-1" role="group" aria-label="Azioni autore">
                                     
                                     <!-- READ / DETTAGLIO -->
-                                    <a href="{{ url_for('dettaglio_autore', id=item.id) }}" 
+                                    <a href="{{ url_for('autori.dettaglio_autore', id=item.id) }}" 
                                     class="btn btn-sm btn-info text-white d-inline-flex align-items-center" 
                                     title="Visualizza Dettagli">
                                         <i class="bi bi-eye me-1"></i> Dettaglio
                                     </a>
 
                                     <!-- UPDATE / MODIFICA -->
-                                    <a href="{{ url_for('modifica_autore', id=item.id) }}" 
+                                    <a href="{{ url_for('autori.modifica_autore', id=item.id) }}" 
                                     class="btn btn-sm btn-warning d-inline-flex align-items-center" 
                                     title="Modifica">
                                         <i class="bi bi-pencil me-1"></i> Modifica
@@ -62,7 +62,7 @@ pagina autori
                                 <div class="text-muted">
                                     <i class="bi bi-inbox fs-1 d-block"></i>
                                     <p class="mt-2">Nessun autore trovato nel database.</p>
-                                    <a href="{{ url_for('nuovo_autore') }}" class="btn btn-sm btn-outline-primary">Aggiungi il primo</a>
+                                    <a href="{{ url_for('autori.nuovo_autore') }}" class="btn btn-sm btn-outline-primary">Aggiungi il primo</a>
                                 </div>
                             </td>
                         </tr>

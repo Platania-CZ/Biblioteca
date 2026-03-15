@@ -1,19 +1,19 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand" href="{{ url_for('home') }}">Biblioteca PLUS</a>
+    <a class="navbar-brand" href="{{ url_for('main.index') }}">Biblioteca PLUS</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('opere') }}">Opere</a>
+          <a class="nav-link" href="{{ url_for('opere.elenco_opere') }}">Opere</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('autori') }}">Autori</a>
+          <a class="nav-link" href="{{ url_for('autori.elenco_autori') }}">Autori</a>
         </li>      
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('dewey') }}">Codifica Dewey</a>
+          <a class="nav-link" href="{{ url_for('main.dewey') }}">Codifica Dewey</a>
         </li>      
       </ul>
       <ul class="navbar-nav ms-auto">
@@ -22,22 +22,22 @@
             <span class="nav-link">Benvenuto, {{ current_user.username }}</span>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('cambio_password') }}">🔑 Cambia Password</a>
+            <a class="nav-link" href="{{ url_for('admin.cambio_password') }}">🔑 Cambia Password</a>
           </li>
           {% if current_user.is_amministratore %}
-           <!-- <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('registrazione') }}">Registra Utente</a>
-            </li>-->
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('gestione_utenti') }}">👥 Gestione Utenti</a>
+              <a class="nav-link" href="{{ url_for('admin.registrazione') }}">Registra Utente</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('admin.gestione_utenti') }}">👥 Gestione Utenti</a>
             </li>
           {% endif %}
           <li class="nav-item">
-            <a class="nav-link text-danger" href="{{ url_for('logout') }}">Logout</a>
+            <a class="nav-link text-danger" href="{{ url_for('auth.logout') }}">Logout</a>
           </li>
         {% else %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+            <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
           </li>
         {% endif %}
       </ul>

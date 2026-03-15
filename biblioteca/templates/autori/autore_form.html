@@ -16,7 +16,7 @@
                     </h3>
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ url_for('modifica_autore', id=item.id) if item else url_for('nuovo_autore') }}" method="POST">
+                    <form action="{{ url_for('autori.modifica_autore', id=item.id) if item else url_for('autori.nuovo_autore') }}" method="POST">
                         <div class="mb-3">
                             <label for="nome" class="form-label fw-bold">Nome</label>
                             <input type="text" class="form-control" id="nome" name="nome" 
@@ -47,7 +47,7 @@
                                 <i class="bi bi-check-circle"></i> 
                                 {{ 'Aggiorna Autore' if item else 'Salva Autore' }}
                             </button>
-                            <a href="{{ url_for('autori') }}" class="btn btn-light text-muted">Annulla</a>
+                            <a href="{{ url_for('autori.elenco_autori') }}" class="btn btn-light text-muted">Annulla</a>
                         </div>
                     </form>
                 </div>

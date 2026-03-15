@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request
-from biblioteca.models import Opera, Autore, Copia
+from flask import Blueprint, render_template
+from biblioteca.models import Opera, Autore, Copia, Editore, TipoOpera, ClassificazioneDewey
+from biblioteca.routes.auth import login_operatore_required
 
 # 1. Definizione del Blueprint
 main_bp = Blueprint('main', __name__)
@@ -17,23 +18,24 @@ def index():
     }
     return render_template('home.html', stats=stats)
 
-@main_bp.route('/cerca')
-def cerca():
-    """Motore di ricerca globale per titolo o autore."""
-    query = request.args.get('q', '').strip()
-    risultati = []
-    
-    if query:
-        # Cerchiamo nelle opere per titolo o negli autori per nome/cognome
-        risultati = Opera.query.join(Autore).filter(
-            (Opera.titolo.contains(query)) | 
-            (Autore.nome.contains(query)) | 
-            (Autore.cognome.contains(query))
-        ).all()
-        
-    return render_template('risultati_ricerca.html', query=query, risultati=risultati)
 
-@main_bp.route('/contatti')
-def contatti():
-    """Pagina informativa sui contatti della biblioteca."""
-    return render_template('contatti.html')
+
+
+
+main_bp.route('/editori')
+@login_operatore_required
+def editori():
+    items = Editore.query.all()
+    return render_template('editori/editori.html', items=items)
+
+@main_bp.route('/tipi_opere')
+@login_operatore_required
+def tipi_opere():
+    items = TipoOpera.query.all()
+    return render_template('tipi_opere.html', items=items)
+
+@main_bp.route('/dewey')
+@login_operatore_required
+def dewey():
+    items = ClassificazioneDewey.query.all()
+    return render_template('dewey/dewey.html', items=items)
