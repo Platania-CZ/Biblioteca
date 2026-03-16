@@ -1,35 +1,69 @@
 {% extends "home.html" %}
 
-{% block title %}
-pagina autori       
-{% endblock %}
+{% block title %}Elenco Autori{% endblock %}
 
 {% block content %}
-
 <div class="container mt-2">
     <div class="card shadow">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h6 class="card-title mb-0"><em>Elenco Autori ({{ items|length }})</em></h6>
-            <a href="{{ url_for('autori.nuovo_autore') }}" class="btn btn-success shadow-sm">
+            <a href="{{ url_for('autori.nuovo_autore') }}" class="btn btn-success shadow-sm btn-sm">
                 <i class="bi bi-plus-lg"></i> Aggiungi Nuovo
-            </a> 
+            </a>
         </div>
+
+        <!-- FILTRO -->
+        <div class="card-body border-bottom pb-3">
+            <form method="GET" action="{{ url_for('autori.elenco_autori') }}" class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small">Cognome</label>
+                    <input type="text" name="cognome" class="form-control form-control-sm"
+                           placeholder="Cerca per cognome..." value="{{ filtro_cognome }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small">Nome</label>
+                    <input type="text" name="nome" class="form-control form-control-sm"
+                           placeholder="Cerca per nome..." value="{{ filtro_nome }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold small">Nazionalità</label>
+                    <select name="nazionalita" class="form-select form-select-sm">
+                        <option value="">-- Tutte --</option>
+                        {% for naz in nazionalita_enum %}
+                            <option value="{{ naz.name }}" {{ 'selected' if filtro_nazionalita == naz.name }}>
+                                {{ naz.value }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-1">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="bi bi-search"></i> Cerca
+                    </button>
+                    <a href="{{ url_for('autori.elenco_autori') }}" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="bi bi-x"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover table-striped align-middle">
                     <thead class="table-dark">
                         <tr style="font-style: italic;">
-                            <th scope="col" style="width: 5%">ID</th>
-                            <th scope="col">Cognome</th>
-                            <th scope="col">Nome</th>
-                            <th scope="col">Nazione</th>
-                            <th scope="col" class="text-center" style="width: 25%">Azioni</th>
+                            <th style="width: 5%">ID</th>
+                            <th>Cognome</th>
+                            <th>Nome</th>
+                            <th>Nazione</th>
+                            <th>Opere</th>
+                            <th scope="col" class="text-center" style="width: 30%">Azioni</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in items %}
                         <tr>
-                            <td><span class="badge rounded-pill bg-light">{{ item.id }}</span></td>
+                            <td><span class="badge rounded-pill bg-secondary">{{ item.id }}</span></td>
                             <td><strong>{{ item.cognome }}</strong></td>
                             <td>{{ item.nome }}</td>
                             <td>
@@ -37,32 +71,40 @@ pagina autori
                                     <i class="bi bi-geo-alt"></i> {{ item.nazionalita.value }}
                                 </span>
                             </td>
+                            <td>
+                                <span class="badge bg-info text-dark">{{ item.opere | length }}</span>
+                            </td>
                             <td class="text-center">
-                                <div class="d-flex justify-content-center gap-1" role="group" aria-label="Azioni autore">
-                                    
-                                    <!-- READ / DETTAGLIO -->
-                                    <a href="{{ url_for('autori.dettaglio_autore', id=item.id) }}" 
-                                    class="btn btn-sm btn-info text-white d-inline-flex align-items-center" 
-                                    title="Visualizza Dettagli">
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a href="{{ url_for('autori.dettaglio_autore', id=item.id) }}"
+                                       class="btn btn-sm btn-info text-white d-inline-flex align-items-center">
                                         <i class="bi bi-eye me-1"></i> Dettaglio
                                     </a>
-
-                                    <!-- UPDATE / MODIFICA -->
-                                    <a href="{{ url_for('autori.modifica_autore', id=item.id) }}" 
-                                    class="btn btn-sm btn-warning d-inline-flex align-items-center" 
-                                    title="Modifica">
+                                    <a href="{{ url_for('autori.modifica_autore', id=item.id) }}"
+                                       class="btn btn-sm btn-warning d-inline-flex align-items-center">
                                         <i class="bi bi-pencil me-1"></i> Modifica
                                     </a>
+                                    <!-- <form action="{{ url_for('autori.elimina_autore', id=item.id) }}"
+                                          method="POST" class="d-inline"
+                                          onsubmit="return confirm('Eliminare {{ item.nome }} {{ item.cognome }}?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-danger d-inline-flex align-items-center"
+                                                {{ 'disabled' if item.opere | length > 0 }}>
+                                            <i class="bi bi-trash me-1"></i> Elimina
+                                        </button>
+                                    </form> -->
                                 </div>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="5" class="text-center py-5">
+                            <td colspan="6" class="text-center py-5">
                                 <div class="text-muted">
                                     <i class="bi bi-inbox fs-1 d-block"></i>
-                                    <p class="mt-2">Nessun autore trovato nel database.</p>
-                                    <a href="{{ url_for('autori.nuovo_autore') }}" class="btn btn-sm btn-outline-primary">Aggiungi il primo</a>
+                                    <p class="mt-2">Nessun autore trovato.</p>
+                                    <a href="{{ url_for('autori.elenco_autori') }}"
+                                       class="btn btn-sm btn-outline-secondary">Azzera filtri</a>
                                 </div>
                             </td>
                         </tr>
@@ -73,5 +115,4 @@ pagina autori
         </div>
     </div>
 </div>
-
-{% endblock content %}
+{% endblock %}

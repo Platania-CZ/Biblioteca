@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required
 from biblioteca import db
 from biblioteca.models import Opera, Autore, ClassificazioneDewey, Copia, Editore
@@ -13,12 +13,38 @@ opere_bp = Blueprint('opere', __name__)
 # ==========================================
 # ROTTE OPERE
 # ==========================================
+from biblioteca.routes.tipo_opera_enum import TipoOperaEnum
+
 @opere_bp.route('/opere')
 @login_required
 def elenco_opere():
-    """Visualizza l'elenco di tutte le opere."""
-    items = Opera.query.order_by(Opera.titolo).all()
-    return render_template('opere/opere.html', items=items)
+    filtro_titolo = request.args.get('titolo', '').strip()
+    filtro_autore = request.args.get('autore', '').strip()
+    filtro_tipo = request.args.get('tipo', '').strip()
+
+    query = Opera.query.join(Autore)
+
+    if filtro_titolo:
+        query = query.filter(Opera.titolo.ilike(f'%{filtro_titolo}%'))
+    if filtro_autore:
+        query = query.filter(
+            db.or_(
+                Autore.nome.ilike(f'%{filtro_autore}%'),
+                Autore.cognome.ilike(f'%{filtro_autore}%')
+            )
+        )
+    if filtro_tipo:
+        query = query.filter(Opera.tipo_opera == TipoOperaEnum[filtro_tipo])
+
+    items = query.order_by(Opera.titolo).all()
+
+    return render_template('opere/opere.html',
+        items=items,
+        tipi=TipoOperaEnum,
+        filtro_titolo=filtro_titolo,
+        filtro_autore=filtro_autore,
+        filtro_tipo=filtro_tipo
+    )
 
 
 @opere_bp.route('/opere/nuova', methods=['GET', 'POST'])

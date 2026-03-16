@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required
 from biblioteca import db
 from biblioteca.models import Editore
@@ -15,9 +15,23 @@ editori_bp = Blueprint('editori', __name__)
 @editori_bp.route('/editori')
 @login_required
 def elenco_editori():
-    """Visualizza l'elenco di tutti gli editori."""
-    items = Editore.query.order_by(Editore.nome).all()
-    return render_template('editori/editori.html', items=items)
+    filtro_nome = request.args.get('nome', '').strip()
+    filtro_sede = request.args.get('sede', '').strip()
+
+    query = Editore.query
+
+    if filtro_nome:
+        query = query.filter(Editore.nome.ilike(f'%{filtro_nome}%'))
+    if filtro_sede:
+        query = query.filter(Editore.sede.ilike(f'%{filtro_sede}%'))
+
+    items = query.order_by(Editore.nome).all()
+
+    return render_template('editori/editori.html',
+        items=items,
+        filtro_nome=filtro_nome,
+        filtro_sede=filtro_sede
+    )
 
 
 @editori_bp.route('/editori/nuovo', methods=['GET', 'POST'])

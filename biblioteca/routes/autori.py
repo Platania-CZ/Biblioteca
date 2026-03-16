@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from biblioteca import db
-from biblioteca.models import Autore
+from biblioteca.models import Autore, NazionalitaEnum
 from biblioteca.forms import AutoreForm
 from biblioteca.routes.admin import login_required
 
@@ -15,9 +15,28 @@ autori_bp = Blueprint('autori', __name__)
 @autori_bp.route('/autori')
 @login_required
 def elenco_autori():
-    """Visualizza l'elenco di tutti gli autori."""
-    items = Autore.query.order_by(Autore.cognome).all()
-    return render_template('autori/autori.html', items=items)
+    filtro_cognome = request.args.get('cognome', '').strip()
+    filtro_nome = request.args.get('nome', '').strip()
+    filtro_nazionalita = request.args.get('nazionalita', '').strip()
+
+    query = Autore.query
+
+    if filtro_cognome:
+        query = query.filter(Autore.cognome.ilike(f'%{filtro_cognome}%'))
+    if filtro_nome:
+        query = query.filter(Autore.nome.ilike(f'%{filtro_nome}%'))
+    if filtro_nazionalita:
+        query = query.filter(Autore.nazionalita == NazionalitaEnum[filtro_nazionalita])
+
+    items = query.order_by(Autore.cognome).all()
+
+    return render_template('autori/autori.html',
+        items=items,
+        nazionalita_enum=NazionalitaEnum,
+        filtro_cognome=filtro_cognome,
+        filtro_nome=filtro_nome,
+        filtro_nazionalita=filtro_nazionalita
+    )
 
 
 @autori_bp.route('/autori/nuovo', methods=['GET', 'POST'])
@@ -82,8 +101,10 @@ def modifica_autore(id):
 @autori_bp.route('/autori/elimina/<int:id>', methods=['POST'])
 @login_required
 def elimina_autore(id):
-    """Elimina un autore."""
     autore = db.get_or_404(Autore, id)
+    if autore.opere:
+        flash(f'Impossibile eliminare: {autore.nome} {autore.cognome} ha {len(autore.opere)} opere associate. Eliminale prima.', 'danger')
+        return redirect(url_for('autori.dettaglio_autore', id=id))
     try:
         db.session.delete(autore)
         db.session.commit()

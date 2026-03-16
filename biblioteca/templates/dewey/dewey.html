@@ -1,74 +1,81 @@
 {% extends "home.html" %}
 
-{% block title %}
-pagina negozio       
-{% endblock %}
+{% block title %}Classificazione Dewey{% endblock %}
 
 {% block content %}
-
-<div class="container mt-5">
+<div class="container mt-2">
     <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h3 class="card-title mb-0">Elenco codici Dewey</h3>
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h6 class="card-title mb-0"><em>Classificazione Dewey ({{ items|length }})</em></h6>
         </div>
+
+        <!-- FILTRO -->
+        <div class="card-body border-bottom pb-3">
+            <form method="GET" action="{{ url_for('dewey.dewey') }}" class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small">Sezione</label>
+                    <input type="text" name="sezione" class="form-control form-control-sm"
+                           placeholder="Es. 800" value="{{ filtro_sezione }}">
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fw-bold small">Descrizione</label>
+                    <input type="text" name="descrizione" class="form-control form-control-sm"
+                           placeholder="Cerca per descrizione..." value="{{ filtro_descrizione }}">
+                </div>
+                <div class="col-md-4 d-flex gap-1 align-items-end">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="bi bi-search"></i> Cerca
+                    </button>
+                    <a href="{{ url_for('dewey.dewey') }}" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="bi bi-x"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover table-striped align-middle">
                     <thead class="table-dark">
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Sezione Principale</th>
-                            <th scope="col">Sottosezione</th>
-                            <th scope="col">Descrizione</th>
-                            <th scope="col">Descrizione Sottosezione</th> <!-- Nuovo campo -->
-                            <th scope="col" class="text-center">Azioni</th>
+                        <tr style="font-style: italic;">
+                            <th style="width: 5%">ID</th>
+                            <th style="width: 10%">Codice</th>
+                            <th>Categoria</th>
+                            <th>Descrizione</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {# Inizio ciclo Jinja2 #}
                         {% for item in items %}
                         <tr>
-                            <td>{{ item.id }}</td>
-                            <td><span class="badge bg-secondary">{{ item.sezione_principale }}</span></td>
+                            <td><span class="badge rounded-pill bg-secondary">{{ item.id }}</span></td>
                             <td>
-                                {% if item.sottosezione %}
-                                    {{ item.sottosezione }}
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
+                                <span class="badge bg-dark font-monospace">{{ item.codice_dewey }}</span>
                             </td>
                             <td><strong>{{ item.descrizione }}</strong></td>
                             <td>
                                 {% if item.descrizione_sottosezione %}
                                     {{ item.descrizione_sottosezione }}
                                 {% else %}
-                                    <span class="text-muted italic small">Voce principale</span>
+                                    <span class="text-muted small fst-italic">Voce principale</span>
                                 {% endif %}
-                            </td>
-                            <td class="text-center">
-                                <div class="d-grid gap-2 d-md-block">
-                                    <a href="#" class="btn btn-sm btn-info text-white">
-                                        <i class="bi bi-eye"></i> Dettaglio
-                                    </a>
-                                    <button type="button" class="btn btn-sm btn-outline-primary">
-                                        Seleziona
-                                    </button>
-                                </div>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                <em>Nessun elemento presente in lista.</em>
+                            <td colspan="4" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block"></i>
+                                    <p class="mt-2">Nessun codice Dewey trovato.</p>
+                                    <a href="{{ url_for('dewey.dewey') }}"
+                                       class="btn btn-sm btn-outline-secondary">Azzera filtri</a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
-                        {# Fine ciclo Jinja2 #}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
-
-{% endblock content %}
+{% endblock %}

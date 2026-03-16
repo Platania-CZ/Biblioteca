@@ -55,6 +55,7 @@ def create_app():
     from biblioteca.routes.autori import autori_bp
     from biblioteca.routes.opere import opere_bp
     from biblioteca.routes.editori import editori_bp
+    from biblioteca.routes.dewey import dewey_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(admin_bp)
@@ -62,4 +63,6 @@ def create_app():
     app.register_blueprint(autori_bp)
     app.register_blueprint(opere_bp)
     app.register_blueprint(editori_bp)
+    app.register_blueprint(dewey_bp)
+
     return app
