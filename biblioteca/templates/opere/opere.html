@@ -1,64 +1,94 @@
 {% extends "home.html" %}
 
-{% block title %}
-pagina opere       
-{% endblock %}
+{% block title %}Elenco Opere{% endblock %}
 
 {% block content %}
-
 <div class="container mt-2">
     <div class="card shadow">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h6 class="card-title mb-0"><em>Elenco Opere ({{ items|length }})</em></h6>
-            <a href="{{ url_for('opere.nuova_opera') }}" class="btn btn-success shadow-sm">
-                <i class="bi bi-plus-lg"></i> Aggiungi Nuova
-            </a> 
+            <a href="{{ url_for('opere.nuova_opera') }}" class="btn btn-success btn-sm shadow-sm">
+                <i class="bi bi-plus-lg"></i> Aggiungi Opera
+            </a>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover table-striped align-middle">
                     <thead class="table-dark">
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Titolo</th>
-                            <th scope="col">Autore</th>
-                            <th scope="col">Anno</th>
-                            <th scope="col" class="text-center">Azioni</th>
+                        <tr style="font-style: italic;">
+                            <th style="width: 5%">ID</th>
+                            <th>Titolo</th>
+                            <th>Autore</th>
+                            <th>Tipo</th>
+                            <th>Copie</th>
+                            <th class="text-center" style="width: 25%">Azioni</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {# Inizio ciclo Jinja2 #}
                         {% for item in items %}
                         <tr>
-                            <td>{{ item.id }}</td>
+                            <td><span class="badge rounded-pill bg-secondary">{{ item.id }}</span></td>
                             <td><strong>{{ item.titolo }}</strong></td>
-                            <td>{{ item.autore.nome }} {{ item.autore.cognome }}</td>
-                            <td>{{ item.anno_pubblicazione }}</td>
+                            <td>
+                                <a href="{{ url_for('autori.dettaglio_autore', id=item.autore.id) }}"
+                                   class="text-decoration-none text-dark">
+                                    {{ item.autore.cognome }} {{ item.autore.nome }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-dark">{{ item.tipo_opera.value }}</span>
+                            </td>
+                            <td>
+                                <span class="badge {{ 'bg-success' if item.copie|length > 0 else 'bg-secondary' }}">
+                                    {{ item.copie|length }}
+                                </span>
+                            </td>
                             <td class="text-center">
-                                <div class="d-grid gap-2 d-md-block">
-                                    <!-- Esempio di link dinamici con url_for -->
-                                    <a href="{{ url_for('opere.dettaglio_opera', id=item.id) }}" class="btn btn-sm btn-info text-white">
-                                        Dettaglio
+                                <div class="d-flex justify-content-center gap-1">
+
+                                    <a href="{{ url_for('opere.dettaglio_opera', id=item.id) }}"
+                                       class="btn btn-sm btn-info text-white d-inline-flex align-items-center"
+                                       title="Dettaglio">
+                                        <i class="bi bi-eye me-1"></i> Dettaglio
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-outline-primary">
-                                        Seleziona
-                                    </button>
+
+                                    <a href="{{ url_for('opere.modifica_opera', id=item.id) }}"
+                                       class="btn btn-sm btn-warning d-inline-flex align-items-center"
+                                       title="Modifica">
+                                        <i class="bi bi-pencil me-1"></i> Modifica
+                                    </a>
+
+                                    <form action="{{ url_for('opere.elimina_opera', id=item.id) }}"
+                                          method="POST" class="d-inline"
+                                          onsubmit="return confirm('Eliminare {{ item.titolo }} e tutte le sue copie?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-danger d-inline-flex align-items-center"
+                                                title="Elimina"
+                                                {{ 'disabled' if item.copie|length > 0 }}>
+                                            <i class="bi bi-trash me-1"></i> Elimina
+                                        </button>
+                                    </form>
+
                                 </div>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="5" class="text-center text-muted italic">
-                                Nessun elemento presente in lista.
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block"></i>
+                                    <p class="mt-2">Nessuna opera trovata nel database.</p>
+                                    <a href="{{ url_for('opere.nuova_opera') }}"
+                                       class="btn btn-sm btn-outline-primary">Aggiungi la prima</a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
-                        {# Fine ciclo Jinja2 #}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
-
-{% endblock content %}
+{% endblock %}

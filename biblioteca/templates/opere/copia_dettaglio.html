@@ -1,0 +1,111 @@
+{% extends "home.html" %}
+
+{% block title %}Dettaglio Copia #{{ item.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow border-0">
+        <div class="card-header bg-secondary text-white py-3">
+            <h5 class="mb-0">
+                <i class="bi bi-book-half"></i>
+                <em>Dettaglio Copia #{{ item.id }} — {{ item.opera.titolo }}</em>
+            </h5>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-4 text-center border-end">
+                    <div class="rounded bg-light d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 120px; height: 160px; border: 2px dashed #dee2e6;">
+                        <i class="bi bi-journal-text text-secondary" style="font-size: 4rem;"></i>
+                    </div>
+                    <h5>{{ item.opera.titolo }}</h5>
+                    <p class="text-muted small">di {{ item.opera.autore.nome }} {{ item.opera.autore.cognome }}</p>
+                    <span class="badge {{ 'bg-success' if item.stato == 'Disponibile' else 'bg-warning text-dark' }} px-3">
+                        {{ item.stato }}
+                    </span>
+                </div>
+
+                <div class="col-md-8">
+                    <h5 class="text-muted mb-4">Informazioni Copia</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>ID Copia:</strong>
+                            <span>#{{ item.id }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Editore:</strong>
+                            <span>{{ item.editore.nome if item.editore else 'N/D' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>ISBN:</strong>
+                            <span>{{ item.isbn if item.isbn else 'N/D' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Anno Pubblicazione:</strong>
+                            <span>{{ item.anno_pubblicazione if item.anno_pubblicazione else 'N/D' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Posizione Scaffale:</strong>
+                            <span>{{ item.posizione_scaffale if item.posizione_scaffale else '—' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Stato:</strong>
+                            <span class="badge {{ 'bg-success' if item.stato == 'Disponibile' else 'bg-warning text-dark' }}">
+                                {{ item.stato }}
+                            </span>
+                        </li>
+                    </ul>
+
+                    {% if item.prestiti %}
+                    <h5 class="text-muted mt-4 mb-3">Storico Prestiti</h5>
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Lettore</th>
+                                <th>Data Prestito</th>
+                                <th>Data Restituzione</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for prestito in item.prestiti %}
+                            <tr>
+                                <td>{{ prestito.lettore.cognome }} {{ prestito.lettore.nome }}</td>
+                                <td>{{ prestito.data_prestito.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    {% if prestito.data_restituzione %}
+                                        {{ prestito.data_restituzione.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">In corso</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-end gap-2 py-3">
+            <a href="{{ url_for('opere.dettaglio_opera', id=item.id_opera) }}" 
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Torna all'Opera
+            </a>
+            <a href="{{ url_for('opere.modifica_copia', id=item.id) }}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Modifica
+            </a>
+            <form action="{{ url_for('opere.elimina_copia', id=item.id) }}" method="POST"
+                  class="d-inline"
+                  onsubmit="return confirm('Eliminare questa copia?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Elimina
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
