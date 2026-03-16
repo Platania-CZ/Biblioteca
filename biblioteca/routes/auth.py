@@ -15,7 +15,7 @@ auth_bp = Blueprint('auth', __name__)
 def login():
     """Gestisce l'accesso dell'utente."""
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -24,7 +24,7 @@ def login():
             login_user(utente)
             next_page = request.args.get('next')
             flash(f'Bentornato, {utente.username}!', 'success')
-            return redirect(next_page) if next_page else redirect(url_for('main.index'))
+            return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
         else:
             flash('Login non riuscito. Controlla username e password.', 'danger')
 

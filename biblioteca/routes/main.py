@@ -1,37 +1,35 @@
-from flask import Blueprint, render_template
-from flask_login import login_required
-from biblioteca.models import Opera, Autore, Copia, Editore 
-from biblioteca.routes.tipo_opera_enum import TipoOperaEnum
+from flask import Blueprint, render_template, redirect, url_for, request
+from flask_login import login_required, current_user
+from biblioteca import db
+from biblioteca.models import Opera, Autore, Copia, Editore, ClassificazioneDewey
 
-# ==========================================
-# DEFINIZIONE BLUEPRINT
-# ==========================================
 main_bp = Blueprint('main', __name__)
 
-# ==========================================
-# ROTTE
-# ==========================================
 @main_bp.route('/')
 def index():
-    """Pagina principale (Dashboard) con le statistiche della biblioteca."""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dashboard'))
+    return render_template('home.html')
+
+
+@main_bp.route('/dashboard')
+@login_required
+def dashboard():
+    from biblioteca.models import Prestito, Utente
     stats = {
         'totale_opere': Opera.query.count(),
         'totale_autori': Autore.query.count(),
+        'totale_editori': Editore.query.count(),
+        'totale_copie': Copia.query.count(),
         'copie_disponibili': Copia.query.filter_by(stato='Disponibile').count(),
-        'ultime_opere': Opera.query.order_by(Opera.id.desc()).limit(5).all()
+        'copie_in_prestito': Copia.query.filter_by(stato='In prestito').count(),
+        'totale_prestiti': Prestito.query.count(),
+        'prestiti_aperti': Prestito.query.filter_by(data_restituzione=None).count(),
+        'ultime_opere': Opera.query.order_by(Opera.id.desc()).limit(5).all(),
+        'totale_utenti': Utente.query.count(),
+        'totale_operatori': Utente.query.filter_by(ruolo='operatore').count(),
+        'totale_amministratori': Utente.query.filter_by(ruolo='amministratore').count(),
     }
-    return render_template('home.html', stats=stats)
+    return render_template('dashboard.html', stats=stats)
 
-
-@main_bp.route('/editori')
-@login_required
-def editori():
-    items = Editore.query.all()
-    return render_template('editori/editori.html', items=items)
-
-
-@main_bp.route('/tipi_opere')
-@login_required
-def tipi_opere():
-    return render_template('tipi_opere.html', tipi=TipoOperaEnum)
 
