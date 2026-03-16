@@ -1,23 +1,39 @@
-# Virtual environment
+# --- Virtual Environments ---
+# Copriamo tutte le varianti comuni
 myvenv/
 .venv/
 venv/
+ENV/
+env/
 
-# Python
+# --- Python ---
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
 
-# VSCode
-.vscode/settings.json
+# --- VS Code ---
+# È meglio ignorare l'intera cartella .vscode perché contiene 
+# percorsi locali che darebbero errore ad altri utenti.
+.vscode/
 
-# OS
+# --- OS (Sistema Operativo) ---
 Thumbs.db
 .DS_Store
+*.swp
 
-# Database locale
+# --- Database ---
 *.db
 *.sqlite
+*.sqlite3
 
-# Credenziali - MAI su GitHub
+# --- CREDENZIALI (Sicurezza Critica) ---
+# Non limitarti a .env, meglio bloccare ogni variante
 .env
+.env.*
+!.env.example
+secrets.json
