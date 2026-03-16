@@ -1,5 +1,6 @@
 from biblioteca import create_app, db
-from biblioteca.models import ClassificazioneDewey, Utente
+from biblioteca.models import ClassificazioneDewey, Utente, Editore,Autore,NazionalitaEnum
+from datetime import date
 
 app = create_app()
 
@@ -65,5 +66,62 @@ with app.app_context():
 
         db.session.commit()
         print("Classificazione Dewey popolata con successo!")
+
+    #4. Popolamento Editori (Esempio precedente) ---
+    if Editore.query.count() == 0:
+        print("Popolamento editori...")
+        editori = [
+            Editore(nome="Mondadori", sede="Milano"),
+            Editore(nome="Zanichelli", sede="Bologna"),
+            Editore(nome="Adelphi", sede="Milano")
+        ]
+        db.session.add_all(editori)
+        db.session.commit()
+        print("Editori popolati con successo!")
+
+    #53. Popolamento Autori ---
+    if Autore.query.count() == 0:
+        print("Popolamento autori in corso...")
+        
+        autori_da_inserire = [
+            Autore(
+                nome="Umberto", 
+                cognome="Eco", 
+                nazionalita=NazionalitaEnum.ITALIA, 
+                data_nascita=date(1932, 1, 5)
+            ),
+            Autore(
+                nome="George", 
+                cognome="Orwell", 
+                nazionalita=NazionalitaEnum.REGNO_UNITO, # Assicurati che i nomi coincidano con il tuo Enum
+                data_nascita=date(1903, 6, 25)
+            ),
+            Autore(
+                nome="Gabriel", 
+                cognome="García Márquez", 
+                nazionalita=NazionalitaEnum.COLOMBIA, 
+                data_nascita=date(1927, 3, 6)
+            ),
+            Autore(
+                nome="Dante", 
+                cognome="Alighieri", 
+                nazionalita=NazionalitaEnum.ITALIA, 
+                data_nascita=date(1265, 5, 1) # Data approssimativa
+            ),
+            Autore(
+                nome="Virginia", 
+                cognome="Woolf", 
+                nazionalita=NazionalitaEnum.REGNO_UNITO, 
+                data_nascita=date(1882, 1, 25)
+            )
+        ]
+
+        try:
+            db.session.add_all(autori_da_inserire)
+            db.session.commit()
+            print("Autori inseriti con successo!")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Errore durante l'inserimento degli autori: {e}")
 
     print("Database pronto!")
