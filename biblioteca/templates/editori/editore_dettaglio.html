@@ -1,0 +1,109 @@
+{% extends "home.html" %}
+
+{% block title %}Dettaglio Editore{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow border-0">
+        <div class="card-header bg-info text-white py-3">
+            <h5 class="mb-0">
+                <i class="bi bi-building"></i>
+                <em>Dettaglio Editore: {{ item.nome }}</em>
+            </h5>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-4 text-center border-end">
+                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 120px; height: 120px;">
+                        <i class="bi bi-building-fill text-secondary" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4>{{ item.nome }}</h4>
+                    {% if item.sede %}
+                        <span class="badge bg-light text-dark px-3">
+                            <i class="bi bi-geo-alt"></i> {{ item.sede }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-8">
+                    <h5 class="text-muted mb-4">Informazioni Registrate</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>ID:</strong>
+                            <span>#{{ item.id }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Nome:</strong>
+                            <span>{{ item.nome }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Sede:</strong>
+                            <span>{{ item.sede if item.sede else '—' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Copie pubblicate:</strong>
+                            <span class="badge {{ 'bg-success' if item.copie|length > 0 else 'bg-secondary' }}">
+                                {{ item.copie|length }}
+                            </span>
+                        </li>
+                    </ul>
+
+                    {% if item.copie %}
+                    <h5 class="text-muted mt-4 mb-3">Copie pubblicate</h5>
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Opera</th>
+                                <th>Anno</th>
+                                <th>Stato</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for copia in item.copie %}
+                            <tr>
+                                <td>{{ copia.opera.titolo }}</td>
+                                <td>{{ copia.anno_pubblicazione if copia.anno_pubblicazione else '—' }}</td>
+                                <td>
+                                    <span class="badge {{ 'bg-success' if copia.stato == 'Disponibile' else 'bg-warning text-dark' }}">
+                                        {{ copia.stato }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('opere.dettaglio_copia', id=copia.id) }}"
+                                       class="btn btn-sm btn-outline-info py-0">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-end gap-2 py-3">
+            <a href="{{ url_for('editori.elenco_editori') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Torna alla lista
+            </a>
+            <a href="{{ url_for('editori.modifica_editore', id=item.id) }}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Modifica
+            </a>
+            <form action="{{ url_for('editori.elimina_editore', id=item.id) }}" method="POST"
+                  class="d-inline"
+                  onsubmit="return confirm('Eliminare editore {{ item.nome }}?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-danger"
+                        {{ 'disabled' if item.copie|length > 0 }}>
+                    <i class="bi bi-trash"></i> Elimina
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

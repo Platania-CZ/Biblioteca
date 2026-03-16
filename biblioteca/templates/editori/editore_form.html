@@ -1,0 +1,51 @@
+{% extends "home.html" %}
+
+{% block title %}
+    {% if item %}Modifica Editore{% else %}Nuovo Editore{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header {{ 'bg-warning text-dark' if item else 'bg-success text-white' }} py-3">
+                    <h5 class="mb-0">
+                        <i class="bi {{ 'bi-pencil-square' if item else 'bi-building-add' }}"></i>
+                        {{ 'Modifica Editore' if item else 'Registra Nuovo Editore' }}
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('editori.modifica_editore', id=item.id) if item else url_for('editori.nuovo_editore') }}"
+                          method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.nome.label(class="form-label fw-bold") }}
+                            {{ form.nome(class="form-control", placeholder="Es. Mondadori") }}
+                            {% for error in form.nome.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.sede.label(class="form-label fw-bold") }}
+                            {{ form.sede(class="form-control", placeholder="Es. Milano") }}
+                            {% for error in form.sede.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-lg " + ("btn-warning" if item else "btn-success")) }}
+                            <a href="{{ url_for('editori.elenco_editori') }}"
+                               class="btn btn-light text-muted">Annulla</a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -124,3 +124,11 @@ class PrestitoForm(FlaskForm):
     data_restituzione = DateField('Data Restituzione', format='%Y-%m-%d', validators=[Optional()])
     note = TextAreaField('Note', validators=[Optional()])
     submit = SubmitField('Salva')
+
+# ==========================================
+# FORM EDITORI
+# ==========================================
+class EditoreForm(FlaskForm):
+    nome = StringField('Nome', validators=[DataRequired(), Length(max=150)])
+    sede = StringField('Sede', validators=[Optional(), Length(max=100)])
+    submit = SubmitField('Salva')    

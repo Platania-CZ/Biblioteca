@@ -1,14 +1,14 @@
 {% extends "home.html" %}
 
-{% block title %}Elenco Opere{% endblock %}
+{% block title %}Elenco Editori{% endblock %}
 
 {% block content %}
 <div class="container mt-2">
     <div class="card shadow">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h6 class="card-title mb-0"><em>Elenco Opere ({{ items|length }})</em></h6>
-            <a href="{{ url_for('opere.nuova_opera') }}" class="btn btn-success btn-sm shadow-sm">
-                <i class="bi bi-plus-lg"></i> Aggiungi Opera
+            <h6 class="card-title mb-0"><em>Elenco Editori ({{ items|length }})</em></h6>
+            <a href="{{ url_for('editori.nuovo_editore') }}" class="btn btn-success btn-sm shadow-sm">
+                <i class="bi bi-plus-lg"></i> Aggiungi Editore
             </a>
         </div>
         <div class="card-body">
@@ -17,27 +17,18 @@
                     <thead class="table-dark">
                         <tr style="font-style: italic;">
                             <th style="width: 5%">ID</th>
-                            <th>Titolo</th>
-                            <th>Autore</th>
-                            <th>Tipo</th>
+                            <th>Nome</th>
+                            <th>Sede</th>
                             <th>Copie</th>
-                            <th class="text-center" style="width: 25%">Azioni</th>
+                            <th class="text-center" style="width: 30%">Azioni</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in items %}
                         <tr>
                             <td><span class="badge rounded-pill bg-secondary">{{ item.id }}</span></td>
-                            <td><strong>{{ item.titolo }}</strong></td>
-                            <td>
-                                <a href="{{ url_for('autori.dettaglio_autore', id=item.autore.id) }}"
-                                   class="text-decoration-none text-dark">
-                                    {{ item.autore.cognome }} {{ item.autore.nome }}
-                                </a>
-                            </td>
-                            <td>
-                                <span class="badge bg-info text-dark">{{ item.tipo_opera.value }}</span>
-                            </td>
+                            <td><strong>{{ item.nome }}</strong></td>
+                            <td>{{ item.sede if item.sede else '—' }}</td>
                             <td>
                                 <span class="badge {{ 'bg-success' if item.copie|length > 0 else 'bg-secondary' }}">
                                     {{ item.copie|length }}
@@ -46,41 +37,38 @@
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-1">
 
-                                    <a href="{{ url_for('opere.dettaglio_opera', id=item.id) }}"
-                                       class="btn btn-sm btn-info text-white d-inline-flex align-items-center"
-                                       title="Dettaglio">
+                                    <a href="{{ url_for('editori.dettaglio_editore', id=item.id) }}"
+                                       class="btn btn-sm btn-info text-white d-inline-flex align-items-center">
                                         <i class="bi bi-eye me-1"></i> Dettaglio
                                     </a>
 
-                                    <a href="{{ url_for('opere.modifica_opera', id=item.id) }}"
-                                       class="btn btn-sm btn-warning d-inline-flex align-items-center"
-                                       title="Modifica">
+                                    <a href="{{ url_for('editori.modifica_editore', id=item.id) }}"
+                                       class="btn btn-sm btn-warning d-inline-flex align-items-center">
                                         <i class="bi bi-pencil me-1"></i> Modifica
                                     </a>
 
-                                    <!-- <form action="{{ url_for('opere.elimina_opera', id=item.id) }}"
+                                    <form action="{{ url_for('editori.elimina_editore', id=item.id) }}"
                                           method="POST" class="d-inline"
-                                          onsubmit="return confirm('Eliminare {{ item.titolo }} e tutte le sue copie?');">
+                                          onsubmit="return confirm('Eliminare editore {{ item.nome }}?');">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <button type="submit"
                                                 class="btn btn-sm btn-danger d-inline-flex align-items-center"
-                                                title="Elimina"
                                                 {{ 'disabled' if item.copie|length > 0 }}>
                                             <i class="bi bi-trash me-1"></i> Elimina
                                         </button>
-                                    </form> -->
+                                    </form>
 
                                 </div>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="5" class="text-center py-5">
                                 <div class="text-muted">
                                     <i class="bi bi-inbox fs-1 d-block"></i>
-                                    <p class="mt-2">Nessuna opera trovata nel database.</p>
-                                    <a href="{{ url_for('opere.nuova_opera') }}"
-                                       class="btn btn-sm btn-outline-primary">Aggiungi la prima</a>
+                                    <p class="mt-2">Nessun editore trovato nel database.</p>
+                                    <a href="{{ url_for('editori.nuovo_editore') }}"
+                                       class="btn btn-sm btn-outline-primary">Aggiungi il primo</a>
                                 </div>
                             </td>
                         </tr>

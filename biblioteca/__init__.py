@@ -54,11 +54,12 @@ def create_app():
     from biblioteca.routes.auth import auth_bp
     from biblioteca.routes.autori import autori_bp
     from biblioteca.routes.opere import opere_bp
+    from biblioteca.routes.editori import editori_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(autori_bp)
     app.register_blueprint(opere_bp)
-
+    app.register_blueprint(editori_bp)
     return app
