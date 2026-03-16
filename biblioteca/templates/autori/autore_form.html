@@ -17,38 +17,45 @@
                 </div>
                 <div class="card-body p-4">
                     <form action="{{ url_for('autori.modifica_autore', id=item.id) if item else url_for('autori.nuovo_autore') }}" method="POST">
+                        {{ form.hidden_tag() }}
+
                         <div class="mb-3">
-                            <label for="nome" class="form-label fw-bold">Nome</label>
-                            <input type="text" class="form-control" id="nome" name="nome" 
-                                   value="{{ item.nome if item else '' }}" required placeholder="Es. Alessandro">
+                            {{ form.nome.label(class="form-label fw-bold") }}
+                            {{ form.nome(class="form-control", placeholder="Es. Alessandro") }}
+                            {% for error in form.nome.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
                         </div>
-                        
+
                         <div class="mb-3">
-                            <label for="cognome" class="form-label fw-bold">Cognome</label>
-                            <input type="text" class="form-control" id="cognome" name="cognome" 
-                                   value="{{ item.cognome if item else '' }}" required placeholder="Es. Manzoni">
+                            {{ form.cognome.label(class="form-label fw-bold") }}
+                            {{ form.cognome(class="form-control", placeholder="Es. Manzoni") }}
+                            {% for error in form.cognome.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.nazionalita.label(class="form-label fw-bold") }}
+                            {{ form.nazionalita(class="form-select") }}
+                            {% for error in form.nazionalita.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
                         </div>
 
                         <div class="mb-4">
-                            <label for="nazionalita" class="form-label fw-bold">Nazionalità</label>
-                            <select class="form-select" id="nazionalita" name="nazionalita" required>
-                                <option value="" disabled {{ 'selected' if not item }}>Seleziona Nazione...</option>                           
-                                    {% for nazione in NazionalitaEnum %}
-                                        <option value="{{ nazione.value }}" 
-                                            {{ 'selected' if item and item.nazionalita == nazione }}>
-                                            {{ nazione.value }}
-                                        </option>
-                                    {% endfor %}
-                            </select>
+                            {{ form.data_nascita.label(class="form-label fw-bold") }}
+                            {{ form.data_nascita(class="form-control") }}
+                            {% for error in form.data_nascita.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn {{ 'btn-warning' if item else 'btn-success' }} btn-lg">
-                                <i class="bi bi-check-circle"></i> 
-                                {{ 'Aggiorna Autore' if item else 'Salva Autore' }}
-                            </button>
+                            {{ form.submit(class="btn btn-lg " + ('btn-warning' if item else 'btn-success')) }}
                             <a href="{{ url_for('autori.elenco_autori') }}" class="btn btn-light text-muted">Annulla</a>
                         </div>
+
                     </form>
                 </div>
             </div>

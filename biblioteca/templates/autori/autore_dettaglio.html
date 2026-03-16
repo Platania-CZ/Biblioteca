@@ -6,12 +6,16 @@
 <div class="container mt-5">
     <div class="card shadow border-0">
         <div class="card-header bg-info text-white py-3">
-            <h5 class="mb-0"><i class="bi bi-person-badge"></i><em>Dettaglio Autore: {{ item.nome }} {{ item.cognome }}</em></h5>
+            <h5 class="mb-0">
+                <i class="bi bi-person-badge"></i>
+                <em>Dettaglio Autore: {{ item.nome }} {{ item.cognome }}</em>
+            </h5>
         </div>
         <div class="card-body p-4">
             <div class="row">
                 <div class="col-md-4 text-center border-end">
-                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px;">
+                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 120px; height: 120px;">
                         <i class="bi bi-person-fill text-secondary" style="font-size: 4rem;"></i>
                     </div>
                     <h4>{{ item.nome }} {{ item.cognome }}</h4>
@@ -21,20 +25,45 @@
                     <h5 class="text-muted mb-4">Informazioni Registrate</h5>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between">
-                            <strong>Identificativo (ID):</strong> 
+                            <strong>Identificativo (ID):</strong>
                             <span>#{{ item.id }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
-                            <strong>Nome Completo:</strong> 
+                            <strong>Nome Completo:</strong>
                             <span>{{ item.nome }} {{ item.cognome }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
-                            <strong>Nazionalità:</strong> 
+                            <strong>Nazionalità:</strong>
                             <span>{{ item.nazionalita.value }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Data di Nascita:</strong>
+                            <span>{{ item.data_nascita.strftime('%d/%m/%Y') if item.data_nascita else '—' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Opere registrate:</strong>
+                            <span>{{ item.opere | length }}</span>
                         </li>
                     </ul>
                 </div>
             </div>
+
+            {% if item.opere %}
+            <hr class="mt-4">
+            <h5 class="text-muted mb-3">Opere di {{ item.nome }} {{ item.cognome }}</h5>
+            <ul class="list-group">
+                {% for opera in item.opere %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ opera.titolo }}
+                    <a href="{{ url_for('opere.dettaglio_opera', id=opera.id) }}" 
+                       class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-eye"></i> Dettaglio
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
         </div>
         <div class="card-footer bg-light d-flex justify-content-end gap-2 py-3">
             <a href="{{ url_for('autori.elenco_autori') }}" class="btn btn-outline-secondary">
@@ -43,9 +72,10 @@
             <a href="{{ url_for('autori.modifica_autore', id=item.id) }}" class="btn btn-warning">
                 <i class="bi bi-pencil"></i> Modifica
             </a>
-            <form action="{{ url_for('autori.elimina_autore', id=item.id) }}" method="POST" 
-                class="d-inline"
-                onsubmit="return confirm('Sei sicuro di voler eliminare questo autore?');">
+            <form action="{{ url_for('autori.elimina_autore', id=item.id) }}" method="POST"
+                  class="d-inline"
+                  onsubmit="return confirm('Sei sicuro di voler eliminare {{ item.nome }} {{ item.cognome }}?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-danger">
                     <i class="bi bi-trash"></i> Elimina
                 </button>

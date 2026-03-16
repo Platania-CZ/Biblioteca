@@ -1,55 +1,80 @@
 {% extends 'home.html' %}
 
+{% block title %}Gestione Utenti{% endblock %}
+
 {% block content %}
-<div class="container">
-    <h2 class="mb-4">Gestione Utenti</h2>
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-people"></i> Gestione Utenti ({{ utenti|length }})</h5>
+            <a href="{{ url_for('admin.registrazione') }}" class="btn btn-success btn-sm">
+                <i class="bi bi-plus-lg"></i> Nuovo Utente
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr style="font-style: italic;">
+                            <th style="width: 5%">ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Ruolo</th>
+                            <th class="text-center" style="width: 30%">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for utente in utenti %}
+                        <tr>
+                            <td><span class="badge rounded-pill bg-secondary">{{ utente.id }}</span></td>
+                            <td><strong>{{ utente.username }}</strong></td>
+                            <td>{{ utente.email_address }}</td>
+                            <td>
+                                <span class="badge {{ 'bg-danger' if utente.is_amministratore else 'bg-primary' }}">
+                                    {{ utente.ruolo }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-1">
 
-    <!-- Pulsante per aggiungere un nuovo utente -->
-    <div class="mb-3">
-        <a href="{{ url_for('admin.registrazione') }}" class="btn btn-success">
-            ➕ Nuovo Utente
-        </a>
+                                    <a href="{{ url_for('admin.modifica_utente', utente_id=utente.id) }}"
+                                       class="btn btn-sm btn-warning d-inline-flex align-items-center">
+                                        <i class="bi bi-pencil me-1"></i> Modifica
+                                    </a>
+
+                                    <a href="{{ url_for('admin.cambio_password_admin', utente_id=utente.id) }}"
+                                       class="btn btn-sm btn-info text-white d-inline-flex align-items-center">
+                                        <i class="bi bi-key me-1"></i> Password
+                                    </a>
+
+                                    {% if utente.id != current_user.id %}
+                                    <form action="{{ url_for('admin.elimina_utente', utente_id=utente.id) }}"
+                                          method="POST" class="d-inline"
+                                          onsubmit="return confirm('Eliminare utente {{ utente.username }}?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-danger d-inline-flex align-items-center">
+                                            <i class="bi bi-trash me-1"></i> Elimina
+                                        </button>
+                                    </form>
+                                    {% endif %}
+
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block"></i>
+                                    <p class="mt-2">Nessun utente trovato.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Ruolo</th>
-                <th>Azioni</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for utente in utenti %}
-            <tr>
-                <td>{{ utente.id }}</td>
-                <td>{{ utente.username }}</td>
-                <td>{{ utente.email_address }}</td>
-                <td>
-                    <span class="badge {% if utente.is_amministratore %}bg-danger{% else %}bg-primary{% endif %}">
-                        {{ utente.ruolo }}
-                    </span>
-                </td>
-                <td class="d-flex gap-2">
-
-                    <!-- Modifica utente -->
-                    <a href="{{ url_for('admin.modifica_utente', utente_id=utente.id) }}" 
-                       class="btn btn-sm btn-info">
-                        ✏️ Modifica
-                    </a>
-
-                    <!-- Cambia password -->
-                    <a href="{{ url_for('admin.cambio_password_admin', utente_id=utente.id) }}" 
-                       class="btn btn-sm btn-warning">
-                        🔑 Password
-                    </a>
-
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 </div>
 {% endblock %}
