@@ -6,7 +6,7 @@
 
     <!-- Pulsante per aggiungere un nuovo utente -->
     <div class="mb-3">
-        <a href="{{ url_for('gestione.registrazione') }}" class="btn btn-success">
+        <a href="{{ url_for('admin.registrazione') }}" class="btn btn-success">
             ➕ Nuovo Utente
         </a>
     </div>
@@ -35,13 +35,13 @@
                 <td class="d-flex gap-2">
 
                     <!-- Modifica utente -->
-                    <a href="{{ url_for('modifica_utente', utente_id=utente.id) }}" 
+                    <a href="{{ url_for('admin.modifica_utente', utente_id=utente.id) }}" 
                        class="btn btn-sm btn-info">
                         ✏️ Modifica
                     </a>
 
                     <!-- Cambia password -->
-                    <a href="{{ url_for('cambio_password_admin', utente_id=utente.id) }}" 
+                    <a href="{{ url_for('admin.cambio_password_admin', utente_id=utente.id) }}" 
                        class="btn btn-sm btn-warning">
                         🔑 Password
                     </a>

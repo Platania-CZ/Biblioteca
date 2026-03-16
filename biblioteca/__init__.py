@@ -11,8 +11,8 @@ bcrypt = Bcrypt()
 login_manager = LoginManager()
 
 # Configurazione globale per Flask-Login
-# 'gestione.login' perché la rotta login ora è dentro il blueprint gestione_bp
-login_manager.login_view = 'gestione.login'
+# 'auth.login' perché la rotta login ora è dentro il blueprint auth_bp
+login_manager.login_view = 'auth.login'
 login_manager.login_message = "Effettua il login per accedere a questa pagina."
 login_manager.login_message_category = 'info'
 
@@ -39,7 +39,7 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         from biblioteca.models import Utente
-        return Utente.query.get(int(user_id))
+        return db.session.get(Utente, int(user_id))
 
     # 4. Registrazione dei Blueprints
     # Importiamo i blueprint dai nuovi percorsi nella cartella routes/
