@@ -1,15 +1,19 @@
-from biblioteca import app, db
-from biblioteca.models import ClassificazioneDewey, Autore, Editore, TipoOpera, Opera, Lettore, Prestito, Copia, Utente
+from biblioteca import create_app, db
+from biblioteca.models import ClassificazioneDewey, Utente
+
+app = create_app()
 
 # ==========================================
-# CREAZIONE TABELLE E POPOLAMENTO DEWEY
+# CREAZIONE TABELLE E POPOLAMENTO
 # ==========================================
 
 with app.app_context():
-    # 1. Creiamo tutte le tabelle (SQLAlchemy gestisce l'ordine corretto delle FK)
+    # 1. Ricrea tutte le tabelle
+    db.drop_all()
     db.create_all()
+    print("Tabelle create con successo.")
 
-    # 2. Inserimento amministratore di default (solo se non esiste già)
+    # 2. Amministratore di default
     if not Utente.query.filter_by(ruolo='amministratore').first():
         admin = Utente(
             username='admin',
@@ -22,11 +26,11 @@ with app.app_context():
         print("Amministratore creato con successo.")
     else:
         print("Amministratore già presente.")
-    
+
     # 3. Popolamento Dewey (solo se la tabella è vuota)
     if ClassificazioneDewey.query.count() == 0:
         print("Popolamento classificazione Dewey in corso...")
-        
+
         dewey_data = {
             '000': [(None, 'Generalità'), ('010', 'Bibliografia'), ('020', 'Biblioteconomia'), ('030', 'Enciclopedie'), ('050', 'Pubblicazioni seriali'), ('060', 'Museologia'), ('070', 'Giornalismo'), ('080', 'Raccolte generali'), ('090', 'Libri rari')],
             '100': [(None, 'Filosofia e psicologia'), ('110', 'Metafisica'), ('120', 'Gnoseologia'), ('130', 'Paranormale'), ('140', 'Scuole filosofiche'), ('150', 'Psicologia'), ('160', 'Logica'), ('170', 'Etica'), ('180', 'Filosofia antica'), ('190', 'Filosofia moderna')],
@@ -42,7 +46,6 @@ with app.app_context():
 
         for principale, sottosezioni in dewey_data.items():
             nome_categoria_principale = next((desc for cod, desc in sottosezioni if cod is None), "Senza categoria")
-            
             for codice_full, desc in sottosezioni:
                 if codice_full is None:
                     entry = ClassificazioneDewey(
@@ -52,44 +55,15 @@ with app.app_context():
                         descrizione_sottosezione=None
                     )
                 else:
-                    sotto_codice = codice_full[1:]
                     entry = ClassificazioneDewey(
                         sezione_principale=principale,
-                        sottosezione=sotto_codice,
+                        sottosezione=codice_full[1:],
                         descrizione=nome_categoria_principale,
                         descrizione_sottosezione=desc
                     )
                 db.session.add(entry)
+
         db.session.commit()
-        print("Database e Dewey pronti con descrizioni dettagliate!")
+        print("Classificazione Dewey popolata con successo!")
 
-    # 4. Popolamento Tipi Opera (solo se la tabella è vuota)
-    if TipoOpera.query.count() == 0:
-        print("Popolamento tipi opera in corso...")
-        
-        # Lista di categorie standard per una biblioteca
-        tipi_nomi = [
-            'Romanzo', 
-            'Saggio', 
-            'Manuale', 
-            'Rivista', 
-            'Fumetto/Graphic Novel', 
-            'Poesia', 
-            'Dizionario/Enciclopedia', 
-            'Biografia', 
-            'Testo Scolastico',
-            'Altro'
-        ]
-
-        for nome_tipo in tipi_nomi:
-            nuovo_tipo = TipoOpera(nome=nome_tipo)
-            db.session.add(nuovo_tipo)
-        
-        try:
-            db.session.commit()
-            print(f"Inseriti {len(tipi_nomi)} tipi opera nel database!")
-        except Exception as e:
-            db.session.rollback()
-            print(f"Errore durante il popolamento Tipi Opera: {e}")
-        
-
+    print("Database pronto!")

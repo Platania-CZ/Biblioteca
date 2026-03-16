@@ -4,6 +4,7 @@ from wtforms import (StringField, PasswordField, SelectField,
 from wtforms.validators import (DataRequired, Email, EqualTo,
                                 Length, Optional, ValidationError, NumberRange)
 from biblioteca.models import NazionalitaEnum
+from biblioteca.routes.tipo_opera_enum import TipoOperaEnum
 
 # ==========================================
 # FORM UTENTI
@@ -78,7 +79,9 @@ class AutoreForm(FlaskForm):
 class OperaForm(FlaskForm):
     titolo = StringField('Titolo', validators=[DataRequired(), Length(max=255)])
     id_autore = SelectField('Autore', coerce=int, validators=[DataRequired()])
-    id_tipo_opera = SelectField('Tipo Opera', coerce=int, validators=[DataRequired()])
+    tipo_opera = SelectField('Tipo Opera',
+        choices=[(t.name, t.value) for t in TipoOperaEnum],
+        validators=[DataRequired()])
     id_dewey = SelectField('Classificazione Dewey', coerce=int, validators=[Optional()])
     isbn_generale = StringField('ISBN', validators=[Optional(), Length(max=20)])
     note = TextAreaField('Note', validators=[Optional()])

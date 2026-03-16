@@ -1,10 +1,13 @@
 from biblioteca import db, bcrypt
 from datetime import datetime
 from flask_login import UserMixin
-from .routes.nazionalita_enum import NazionalitaEnum  # Importazione relativa
-from sqlalchemy import UniqueConstraint # Import necessario
+from sqlalchemy import UniqueConstraint
+from .routes.nazionalita_enum import NazionalitaEnum
+from .routes.tipo_opera_enum import TipoOperaEnum
 
-#definizione del modello
+# ==========================================
+# AUTORE
+# ==========================================
 class Autore(db.Model):
     __tablename__ = 'autori'
     id = db.Column(db.Integer, primary_key=True)
@@ -13,39 +16,38 @@ class Autore(db.Model):
     nazionalita = db.Column(db.Enum(NazionalitaEnum), nullable=False)
     data_nascita = db.Column(db.Date, nullable=True)
 
-    # Definizione del vincolo di unicità sulla coppia nome-cognome
     __table_args__ = (
         UniqueConstraint('nome', 'cognome', name='_nome_cognome_uc'),
     )
-    
-    # Relazione con le opere scritte
+
     opere = db.relationship('Opera', backref='autore', lazy=True)
 
     def __repr__(self):
         return f'<Autore {self.nome} {self.cognome}>'
 
+
+# ==========================================
+# CLASSIFICAZIONE DEWEY
+# ==========================================
 class ClassificazioneDewey(db.Model):
     __tablename__ = 'classificazione_dewey'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     descrizione = db.Column(db.String(255), nullable=False)
     sezione_principale = db.Column(db.String(3), nullable=False)
     sottosezione = db.Column(db.String(20), nullable=True)
     descrizione_sottosezione = db.Column(db.String(255), nullable=True)
 
-    # Relazione con le opere classificate
     opere = db.relationship('Opera', backref='classificazione', lazy=True)
 
     @property
     def codice_dewey(self):
-        """Restituisce il codice completo formato da sezione principale e sottosezione."""
         if self.sottosezione:
             return f"{self.sezione_principale}.{self.sottosezione}"
         return self.sezione_principale
 
     @property
     def descrizione_completa(self):
-        """Restituisce la descrizione gerarchica (Principale - Sottosezione)."""
         if self.descrizione_sottosezione:
             return f"{self.descrizione} - {self.descrizione_sottosezione}"
         return self.descrizione
@@ -53,66 +55,65 @@ class ClassificazioneDewey(db.Model):
     def __repr__(self):
         return f'<ClassificazioneDewey {self.codice_dewey} - {self.descrizione_completa}>'
 
+
+# ==========================================
+# EDITORE
+# ==========================================
 class Editore(db.Model):
     __tablename__ = 'editori'
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(150), nullable=False)
     sede = db.Column(db.String(100), nullable=True)
 
-    # Relazione con le copie prodotte
     copie = db.relationship('Copia', backref='editore', lazy=True)
 
     def __repr__(self):
         return f'<Editore {self.nome}>'
 
-class TipoOpera(db.Model):
-    __tablename__ = 'tipi_opere'
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(100), nullable=False) # Es: Romanzo, Saggio, Rivista
 
-    opere = db.relationship('Opera', backref='tipo', lazy=True)
-
-    def __repr__(self):
-        return f'<TipoOpera {self.nome}>'
-
+# ==========================================
+# OPERA
+# ==========================================
 class Opera(db.Model):
     __tablename__ = 'opere'
 
     id = db.Column(db.Integer, primary_key=True)
     titolo = db.Column(db.String(255), nullable=False)
-    
-    # Chiavi Esterne
     id_autore = db.Column(db.Integer, db.ForeignKey('autori.id'), nullable=False)
-    id_tipo_opera = db.Column(db.Integer, db.ForeignKey('tipi_opere.id'), nullable=False)
+    tipo_opera = db.Column(db.Enum(TipoOperaEnum), nullable=False)
     id_dewey = db.Column(db.Integer, db.ForeignKey('classificazione_dewey.id'), nullable=True)
-    
     isbn_generale = db.Column(db.String(20), nullable=True)
     note = db.Column(db.Text, nullable=True)
 
-    # Relazione con le copie fisiche
     copie = db.relationship('Copia', backref='opera', lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<Opera "{self.titolo}">'
 
+
+# ==========================================
+# COPIA
+# ==========================================
 class Copia(db.Model):
     __tablename__ = 'copie'
 
     id = db.Column(db.Integer, primary_key=True)
     id_opera = db.Column(db.Integer, db.ForeignKey('opere.id'), nullable=False)
     id_editore = db.Column(db.Integer, db.ForeignKey('editori.id'), nullable=False)
-    
     isbn = db.Column(db.String(20), nullable=True)
     anno_pubblicazione = db.Column(db.Integer, nullable=True)
     posizione_scaffale = db.Column(db.String(50), nullable=True)
     stato = db.Column(db.String(100), default="Disponibile")
 
-    # Relazione con i prestiti subiti da questa specifica copia
     prestiti = db.relationship('Prestito', backref='copia', lazy=True)
 
     def __repr__(self):
-        return f'<Copia ID {self.id} di "{self.opera.titolo}"> '
+        return f'<Copia ID {self.id} di "{self.opera.titolo}">'
 
+
+# ==========================================
+# LETTORE
+# ==========================================
 class Lettore(db.Model):
     __tablename__ = 'lettori'
     id = db.Column(db.Integer, primary_key=True)
@@ -124,38 +125,43 @@ class Lettore(db.Model):
     data_iscrizione = db.Column(db.Date, default=datetime.utcnow)
     numero_tessera = db.Column(db.String(20), nullable=False, unique=True)
 
-    # Relazione con lo storico prestiti del lettore
     prestiti = db.relationship('Prestito', backref='lettore', lazy=True)
 
     def __repr__(self):
         return f'<Lettore {self.nome} {self.cognome} ({self.numero_tessera})>'
 
+
+# ==========================================
+# PRESTITO
+# ==========================================
 class Prestito(db.Model):
     __tablename__ = 'prestiti'
     id = db.Column(db.Integer, primary_key=True)
-    
-    # Importante: Il prestito riguarda la COPIA fisica, non l'OPERA astratta
     id_copia = db.Column(db.Integer, db.ForeignKey('copie.id'), nullable=False)
     id_lettore = db.Column(db.Integer, db.ForeignKey('lettori.id'), nullable=False)
-    
     data_prestito = db.Column(db.Date, nullable=False, default=datetime.utcnow)
     data_restituzione = db.Column(db.Date, nullable=True)
     note = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
         return f'<Prestito Copia {self.id_copia} - Lettore {self.id_lettore}>'
-    
+
+
+# ==========================================
+# UTENTE
+# ==========================================
 class Utente(db.Model, UserMixin):
     __tablename__ = 'Utente'
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(length=30), nullable=False, unique=True)
     email_address = db.Column(db.String(length=50), nullable=False, unique=True)
     password_hash = db.Column(db.String(length=60), nullable=False)
-    ruolo = db.Column(db.Enum('amministratore', 'operatore', name='ruolo_enum'), nullable=False, default='operatore')
+    ruolo = db.Column(db.Enum('amministratore', 'operatore', name='ruolo_enum'),
+                      nullable=False, default='operatore')
 
     @property
     def password(self):
-        return self.password
+        return self.password_hash
 
     @password.setter
     def password(self, plain_text_password):

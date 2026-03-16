@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
 from biblioteca import db
-from biblioteca.models import Autore, TipoOpera, ClassificazioneDewey, Opera
+from biblioteca.models import Autore, ClassificazioneDewey, Opera
 from biblioteca.forms import OperaForm
 from biblioteca.routes.admin import login_required
+from biblioteca.routes.tipo_opera_enum import TipoOperaEnum 
 
 # ==========================================
 # DEFINIZIONE BLUEPRINT
@@ -23,20 +24,16 @@ def elenco_opere():
 @opere_bp.route('/opere/nuova', methods=['GET', 'POST'])
 @login_required
 def nuova_opera():
-    """Crea una nuova opera."""
     form = OperaForm()
     form.id_autore.choices = [
         (a.id, f'{a.cognome} {a.nome}')
         for a in Autore.query.order_by(Autore.cognome).all()
     ]
-    form.id_tipo_opera.choices = [
-        (t.id, t.nome)
-        for t in TipoOpera.query.order_by(TipoOpera.nome).all()
-    ]
     form.id_dewey.choices = [(0, '-- Nessuna --')] + [
         (d.id, d.descrizione_completa)
         for d in ClassificazioneDewey.query.order_by(ClassificazioneDewey.id).all()
     ]
+    # tipo_opera non serve choices — li prende da forms.py
 
     if form.validate_on_submit():
         opera_esistente = Opera.query.filter_by(
@@ -50,7 +47,7 @@ def nuova_opera():
                 nuova = Opera(
                     titolo=form.titolo.data,
                     id_autore=form.id_autore.data,
-                    id_tipo_opera=form.id_tipo_opera.data,
+                    tipo_opera=TipoOperaEnum[form.tipo_opera.data],  # ← conversione enum
                     id_dewey=form.id_dewey.data if form.id_dewey.data != 0 else None,
                     isbn_generale=form.isbn_generale.data or None,
                     note=form.note.data or None
@@ -73,20 +70,14 @@ def dettaglio_opera(id):
     item = db.get_or_404(Opera, id)
     return render_template('opere/opera_dettaglio.html', item=item)
 
-
 @opere_bp.route('/opere/modifica/<int:id>', methods=['GET', 'POST'])
 @login_required
 def modifica_opera(id):
-    """Modifica un'opera esistente."""
     opera = db.get_or_404(Opera, id)
     form = OperaForm(obj=opera)
     form.id_autore.choices = [
         (a.id, f'{a.cognome} {a.nome}')
         for a in Autore.query.order_by(Autore.cognome).all()
-    ]
-    form.id_tipo_opera.choices = [
-        (t.id, t.nome)
-        for t in TipoOpera.query.order_by(TipoOpera.nome).all()
     ]
     form.id_dewey.choices = [(0, '-- Nessuna --')] + [
         (d.id, d.descrizione_completa)
@@ -97,7 +88,7 @@ def modifica_opera(id):
         try:
             opera.titolo = form.titolo.data
             opera.id_autore = form.id_autore.data
-            opera.id_tipo_opera = form.id_tipo_opera.data
+            opera.tipo_opera = TipoOperaEnum[form.tipo_opera.data]  # ← conversione enum
             opera.id_dewey = form.id_dewey.data if form.id_dewey.data != 0 else None
             opera.isbn_generale = form.isbn_generale.data or None
             opera.note = form.note.data or None

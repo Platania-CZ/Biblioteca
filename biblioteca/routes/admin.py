@@ -69,6 +69,21 @@ def modifica_utente(utente_id):
         return redirect(url_for('admin.gestione_utenti'))
     return render_template('admin/modifica_utente.html', form=form, utente=utente)
 
+@admin_bp.route('/elimina-utente/<int:utente_id>', methods=['POST'])
+@login_amministratore_required
+def elimina_utente(utente_id):
+    utente = db.get_or_404(Utente, utente_id)
+    if utente.id == current_user.id:
+        flash('Non puoi eliminare te stesso.', 'danger')
+        return redirect(url_for('admin.gestione_utenti'))
+    try:
+        db.session.delete(utente)
+        db.session.commit()
+        flash(f'Utente {utente.username} eliminato.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Errore durante eliminazione: {str(e)}', 'danger')
+    return redirect(url_for('admin.gestione_utenti'))
 
 @admin_bp.route('/cambio-password', methods=['GET', 'POST'])
 @login_required

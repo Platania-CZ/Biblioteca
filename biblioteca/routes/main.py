@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template
 from flask_login import login_required
-from biblioteca.models import Opera, Autore, Copia, Editore, TipoOpera, ClassificazioneDewey
+from biblioteca.models import Opera, Autore, Copia, Editore, ClassificazioneDewey
+from biblioteca.routes.tipo_opera_enum import TipoOperaEnum
 
 # ==========================================
 # DEFINIZIONE BLUEPRINT
@@ -32,8 +33,7 @@ def editori():
 @main_bp.route('/tipi_opere')
 @login_required
 def tipi_opere():
-    items = TipoOpera.query.all()
-    return render_template('tipi_opere.html', items=items)
+    return render_template('tipi_opere.html', tipi=TipoOperaEnum)
 
 
 @main_bp.route('/dewey')
