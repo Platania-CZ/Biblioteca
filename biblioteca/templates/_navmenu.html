@@ -40,14 +40,6 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('admin.cambio_password') }}">🔑 Cambia Password</a>
           </li>
-          {% if current_user.is_amministratore %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('admin.registrazione') }}">Registra Utente</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('admin.gestione_utenti') }}">👥 Gestione Utenti</a>
-            </li>
-          {% endif %}
           <li class="nav-item">
             <a class="nav-link text-danger" href="{{ url_for('auth.logout') }}">Logout</a>
           </li>
