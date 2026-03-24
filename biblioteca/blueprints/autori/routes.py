@@ -1,17 +1,11 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from biblioteca import db
+from biblioteca.extensions import db
 from biblioteca.models import Autore, NazionalitaEnum
 from biblioteca.forms import AutoreForm
-from biblioteca.routes.admin import login_required
+from biblioteca.blueprints.admin.routes import login_required
 
-# ==========================================
-# DEFINIZIONE BLUEPRINT
-# ==========================================
 autori_bp = Blueprint('autori', __name__)
 
-# ==========================================
-# ROTTE
-# ==========================================
 @autori_bp.route('/autori')
 @login_required
 def elenco_autori():
@@ -38,11 +32,9 @@ def elenco_autori():
         filtro_nazionalita=filtro_nazionalita
     )
 
-
 @autori_bp.route('/autori/nuovo', methods=['GET', 'POST'])
 @login_required
 def nuovo_autore():
-    """Crea un nuovo autore."""
     form = AutoreForm()
     if form.validate_on_submit():
         autore_esistente = Autore.query.filter_by(
@@ -68,19 +60,15 @@ def nuovo_autore():
                 flash(f'Errore durante il salvataggio: {str(e)}', 'danger')
     return render_template('autori/autore_form.html', form=form, item=None)
 
-
 @autori_bp.route('/autori/dettaglio/<int:id>')
 @login_required
 def dettaglio_autore(id):
-    """Visualizza i dettagli dell'autore."""
     item = db.get_or_404(Autore, id)
     return render_template('autori/autore_dettaglio.html', item=item)
-
 
 @autori_bp.route('/autori/modifica/<int:id>', methods=['GET', 'POST'])
 @login_required
 def modifica_autore(id):
-    """Modifica un autore esistente."""
     autore = db.get_or_404(Autore, id)
     form = AutoreForm(obj=autore)
     if form.validate_on_submit():
@@ -96,7 +84,6 @@ def modifica_autore(id):
             db.session.rollback()
             flash(f'Errore: {str(e)}', 'danger')
     return render_template('autori/autore_form.html', form=form, item=autore)
-
 
 @autori_bp.route('/autori/elimina/<int:id>', methods=['POST'])
 @login_required

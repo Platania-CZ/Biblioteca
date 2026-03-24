@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request
 from flask_login import login_required
-from biblioteca import db
+from biblioteca.extensions import db
 from biblioteca.models import ClassificazioneDewey
 
 # ==========================================

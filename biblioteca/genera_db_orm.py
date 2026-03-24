@@ -1,5 +1,5 @@
-from biblioteca import create_app, db
-from biblioteca.models import ClassificazioneDewey, Utente
+from biblioteca.extensions import create_app, db
+from models import ClassificazioneDewey, Utente
 
 app = create_app()
 

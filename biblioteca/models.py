@@ -1,9 +1,9 @@
-from biblioteca import db, bcrypt
+from biblioteca.extensions import db, bcrypt
 from datetime import datetime
 from flask_login import UserMixin
 from sqlalchemy import UniqueConstraint
-from .routes.nazionalita_enum import NazionalitaEnum
-from .routes.tipo_opera_enum import TipoOperaEnum
+from biblioteca.enums import NazionalitaEnum, TipoOperaEnum
+
 
 # ==========================================
 # AUTORE
@@ -150,12 +150,12 @@ class Prestito(db.Model):
 # ==========================================
 # UTENTE
 # ==========================================
-class Utente(db.Model, UserMixin):
-    __tablename__ = 'Utente'
-    id = db.Column(db.Integer(), primary_key=True)
-    username = db.Column(db.String(length=30), nullable=False, unique=True)
-    email_address = db.Column(db.String(length=50), nullable=False, unique=True)
-    password_hash = db.Column(db.String(length=60), nullable=False)
+class Utente(UserMixin, db.Model):
+    __tablename__ = 'utenti'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(30), nullable=False, unique=True)
+    email_address = db.Column(db.String(50), nullable=False, unique=True)
+    password_hash = db.Column(db.String(60), nullable=False)
     ruolo = db.Column(db.Enum('amministratore', 'operatore', name='ruolo_enum'),
                       nullable=False, default='operatore')
 

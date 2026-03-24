@@ -1,22 +1,7 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
-from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
+from .extensions import db, bcrypt, login_manager, csrf
 import os
-
-# ==========================================
-# INIZIALIZZAZIONE ESTENSIONI
-# ==========================================
-db = SQLAlchemy()
-bcrypt = Bcrypt()
-login_manager = LoginManager()
-csrf = CSRFProtect()
-
-login_manager.login_view = 'auth.login'
-login_manager.login_message = "Effettua il login per accedere a questa pagina."
-login_manager.login_message_category = 'info'
 
 def create_app():
     load_dotenv()
@@ -30,32 +15,23 @@ def create_app():
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # ==========================================
-    # INIZIALIZZAZIONE ESTENSIONI SULL'APP
-    # ==========================================
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
 
-    # ==========================================
-    # USER LOADER
-    # ==========================================
     @login_manager.user_loader
     def load_user(user_id):
-        from biblioteca.models import Utente
+        from models import Utente
         return db.session.get(Utente, int(user_id))
 
-    # ==========================================
-    # REGISTRAZIONE BLUEPRINT
-    # ==========================================
-    from biblioteca.routes.main import main_bp
-    from biblioteca.routes.admin import admin_bp
-    from biblioteca.routes.auth import auth_bp
-    from biblioteca.routes.autori import autori_bp
-    from biblioteca.routes.opere import opere_bp
-    from biblioteca.routes.editori import editori_bp
-    from biblioteca.routes.dewey import dewey_bp
+    from .blueprints.main import main_bp
+    from .blueprints.admin import admin_bp
+    from .blueprints.auth import auth_bp
+    from .blueprints.autori import autori_bp
+    from .blueprints.opere import opere_bp
+    from .blueprints.editori import editori_bp
+    from .blueprints.dewey import dewey_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(admin_bp)

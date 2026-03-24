@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required
-from biblioteca import db
+from biblioteca.extensions import db
 from biblioteca.models import Editore
 from biblioteca.forms import EditoreForm
 

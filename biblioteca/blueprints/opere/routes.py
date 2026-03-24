@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required
-from biblioteca import db
+from biblioteca.extensions import db
 from biblioteca.models import Opera, Autore, ClassificazioneDewey, Copia, Editore
 from biblioteca.forms import OperaForm, CopiaForm
-from biblioteca.routes.tipo_opera_enum import TipoOperaEnum
+from biblioteca.enums import TipoOperaEnum
 
 # ==========================================
 # DEFINIZIONE BLUEPRINT
@@ -13,7 +13,6 @@ opere_bp = Blueprint('opere', __name__)
 # ==========================================
 # ROTTE OPERE
 # ==========================================
-from biblioteca.routes.tipo_opera_enum import TipoOperaEnum
 
 @opere_bp.route('/opere')
 @login_required

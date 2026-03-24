@@ -1,6 +1,14 @@
-import enum
+from enum import Enum
 
-class TipoOperaEnum(enum.Enum):
+class NazionalitaEnum(Enum):
+    ITALIA = "Italia"
+    COLOMBIA = "Colombia"
+    FRANCIA = "Francia"
+    SPAGNA = "Spagna"
+    REGNO_UNITO = "Regno Unito"
+    USA = "USA"
+
+class TipoOperaEnum(Enum):
     ROMANZO = "Romanzo"
     SAGGIO = "Saggio"
     POESIA = "Poesia"

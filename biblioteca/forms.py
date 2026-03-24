@@ -3,8 +3,7 @@ from wtforms import (StringField, PasswordField, SelectField,
                      SubmitField, DateField, IntegerField, TextAreaField)
 from wtforms.validators import (DataRequired, Email, EqualTo,
                                 Length, Optional, ValidationError, NumberRange)
-from biblioteca.models import NazionalitaEnum
-from biblioteca.routes.tipo_opera_enum import TipoOperaEnum
+from biblioteca.enums import NazionalitaEnum, TipoOperaEnum
 
 # ==========================================
 # FORM UTENTI
@@ -23,12 +22,12 @@ class RegistrazioneForm(FlaskForm):
     submit = SubmitField('Registra')
 
     def validate_username(self, username):
-        from biblioteca.models import Utente
+        from models import Utente
         if Utente.query.filter_by(username=username.data).first():
             raise ValidationError('Username già in uso, scegline un altro.')
 
     def validate_email_address(self, email_address):
-        from biblioteca.models import Utente
+        from models import Utente
         if Utente.query.filter_by(email_address=email_address.data).first():
             raise ValidationError("Email già in uso, scegline un'altra.")
 
@@ -44,13 +43,13 @@ class ModificaUtenteForm(FlaskForm):
         self.original_email = original_email
 
     def validate_username(self, username):
-        from biblioteca.models import Utente
+        from models import Utente
         if username.data != self.original_username:
             if Utente.query.filter_by(username=username.data).first():
                 raise ValidationError('Username già in uso, scegline un altro.')
 
     def validate_email_address(self, email_address):
-        from biblioteca.models import Utente
+        from models import Utente
         if email_address.data != self.original_email:
             if Utente.query.filter_by(email_address=email_address.data).first():
                 raise ValidationError("Email già in uso, scegline un'altra.")

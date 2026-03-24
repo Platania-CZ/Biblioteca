@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_required, current_user
-from biblioteca import db
+from biblioteca.extensions import db
 from biblioteca.models import Opera, Autore, Copia, Editore, ClassificazioneDewey
 
 main_bp = Blueprint('main', __name__)
@@ -15,7 +15,7 @@ def index():
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
-    from biblioteca.models import Prestito, Utente
+    from models import Prestito, Utente
     stats = {
         'totale_opere': Opera.query.count(),
         'totale_autori': Autore.query.count(),
@@ -31,5 +31,3 @@ def dashboard():
         'totale_amministratori': Utente.query.filter_by(ruolo='amministratore').count(),
     }
     return render_template('dashboard.html', stats=stats)
-
-

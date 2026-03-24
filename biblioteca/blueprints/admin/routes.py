@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from functools import wraps
-from biblioteca import db
+from biblioteca.extensions import db
 from biblioteca.models import Utente
 from biblioteca.forms import (
     RegistrazioneForm,
