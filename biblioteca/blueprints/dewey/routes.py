@@ -17,6 +17,7 @@ def dewey():
     """Visualizza la classificazione Dewey con filtri."""
     filtro_sezione = request.args.get('sezione', '').strip()
     filtro_descrizione = request.args.get('descrizione', '').strip()
+    page = request.args.get('page', 1, type=int)          # ✅ aggiunto
 
     query = ClassificazioneDewey.query
 
@@ -37,8 +38,11 @@ def dewey():
         ClassificazioneDewey.sottosezione
     ).all()
 
+    items = query.order_by(ClassificazioneDewey.sezione_principale).paginate(page=page, per_page=10, error_out=False)  # ✅ aggiunto
+
     return render_template('dewey/dewey.html',
         items=items,
+        total=items.total,                                 # ✅ aggiunto
         filtro_sezione=filtro_sezione,
         filtro_descrizione=filtro_descrizione
     )

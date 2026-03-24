@@ -20,6 +20,7 @@ def elenco_opere():
     filtro_titolo = request.args.get('titolo', '').strip()
     filtro_autore = request.args.get('autore', '').strip()
     filtro_tipo = request.args.get('tipo', '').strip()
+    page = request.args.get('page', 1, type=int)          # ✅ aggiunto
 
     query = Opera.query.join(Autore)
 
@@ -35,10 +36,11 @@ def elenco_opere():
     if filtro_tipo:
         query = query.filter(Opera.tipo_opera == TipoOperaEnum[filtro_tipo])
 
-    items = query.order_by(Opera.titolo).all()
-
+    items = query.order_by(Opera.titolo).paginate(page=page, per_page=10, error_out=False)  # ✅ aggiunto
+ 
     return render_template('opere/opere.html',
         items=items,
+        total=items.total,                                 # ✅ aggiunto
         tipi=TipoOperaEnum,
         filtro_titolo=filtro_titolo,
         filtro_autore=filtro_autore,

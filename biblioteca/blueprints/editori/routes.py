@@ -17,6 +17,7 @@ editori_bp = Blueprint('editori', __name__)
 def elenco_editori():
     filtro_nome = request.args.get('nome', '').strip()
     filtro_sede = request.args.get('sede', '').strip()
+    page = request.args.get('page', 1, type=int)          # ✅ aggiunto
 
     query = Editore.query
 
@@ -27,8 +28,11 @@ def elenco_editori():
 
     items = query.order_by(Editore.nome).all()
 
+    items = query.order_by(Editore.nome).paginate(page=page, per_page=10, error_out=False)  # ✅ aggiunto
+
     return render_template('editori/editori.html',
         items=items,
+        total=items.total,                                 # ✅ aggiunto
         filtro_nome=filtro_nome,
         filtro_sede=filtro_sede
     )

@@ -6,7 +6,7 @@
 <div class="container mt-2">
     <div class="card shadow">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h6 class="card-title mb-0"><em>Elenco Editori ({{ items|length }})</em></h6>
+            <h6 class="card-title mb-0"><em>Elenco Editori ({{ total }})</em></h6>
             <a href="{{ url_for('editori.nuovo_editore') }}" class="btn btn-success btn-sm shadow-sm">
                 <i class="bi bi-plus-lg"></i> Aggiungi Editore
             </a>
@@ -97,6 +97,73 @@
                     </tbody>
                 </table>
             </div>
+            
+            <!-- PAGINAZIONE -->
+            {% if items.pages > 1 %}
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <small class="text-muted">
+                    Pagina {{ items.page }} di {{ items.pages }} — {{ total }} risultati
+                </small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+
+                        <!-- Prima pagina -->
+                        <li class="page-item {{ 'disabled' if not items.has_prev }}">
+                            <a class="page-link" href="{{ url_for('editori.elenco_editori',
+                                page=1,
+                                nome=filtro_nome,
+                                sede=filtro_sede) }}">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+
+                        <!-- Pagina precedente -->
+                        <li class="page-item {{ 'disabled' if not items.has_prev }}">
+                            <a class="page-link" href="{{ url_for('editori.elenco_editori',
+                                page=items.prev_num,
+                                nome=filtro_nome,
+                                sede=filtro_sede) }}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        <!-- Numeri pagina -->
+                        {% for p in items.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if p %}
+                                <li class="page-item {{ 'active' if p == items.page }}">
+                                    <a class="page-link" href="{{ url_for('editori.elenco_editori',
+                                        page=p,
+                                        nome=filtro_nome,
+                                        sede=filtro_sede) }}">{{ p }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Pagina successiva -->
+                        <li class="page-item {{ 'disabled' if not items.has_next }}">
+                            <a class="page-link" href="{{ url_for('editori.elenco_editori',
+                                page=items.next_num,
+                                nome=filtro_nome,
+                                sede=filtro_sede) }}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+
+                        <!-- Ultima pagina -->
+                        <li class="page-item {{ 'disabled' if not items.has_next }}">
+                            <a class="page-link" href="{{ url_for('editori.elenco_editori',
+                                page=items.pages,
+                                nome=filtro_nome,
+                                sede=filtro_sede) }}">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
