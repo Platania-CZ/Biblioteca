@@ -12,6 +12,7 @@ def elenco_autori():
     filtro_cognome = request.args.get('cognome', '').strip()
     filtro_nome = request.args.get('nome', '').strip()
     filtro_nazionalita = request.args.get('nazionalita', '').strip()
+    page = request.args.get('page', 1, type=int)          # ✅ aggiunto
 
     query = Autore.query
 
@@ -22,10 +23,11 @@ def elenco_autori():
     if filtro_nazionalita:
         query = query.filter(Autore.nazionalita == NazionalitaEnum[filtro_nazionalita])
 
-    items = query.order_by(Autore.cognome).all()
+    items = query.order_by(Autore.cognome).paginate(page=page, per_page=10, error_out=False)  # ✅ aggiunto
 
     return render_template('autori/autori.html',
         items=items,
+        total=items.total,                                 # ✅ aggiunto
         nazionalita_enum=NazionalitaEnum,
         filtro_cognome=filtro_cognome,
         filtro_nome=filtro_nome,

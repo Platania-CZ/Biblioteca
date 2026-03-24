@@ -1,6 +1,6 @@
 from flask import Flask
 from dotenv import load_dotenv
-from .extensions import db, bcrypt, login_manager, csrf
+from biblioteca.extensions import db, bcrypt, login_manager, csrf, migrate
 import os
 
 def create_app():
@@ -19,19 +19,20 @@ def create_app():
     bcrypt.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
+    migrate.init_app(app, db)      # ✅ aggiunto
 
     @login_manager.user_loader
     def load_user(user_id):
-        from models import Utente
+        from biblioteca.models import Utente  # ✅ corretto
         return db.session.get(Utente, int(user_id))
 
-    from .blueprints.main import main_bp
-    from .blueprints.admin import admin_bp
-    from .blueprints.auth import auth_bp
-    from .blueprints.autori import autori_bp
-    from .blueprints.opere import opere_bp
-    from .blueprints.editori import editori_bp
-    from .blueprints.dewey import dewey_bp
+    from biblioteca.blueprints.main import main_bp
+    from biblioteca.blueprints.admin import admin_bp
+    from biblioteca.blueprints.auth import auth_bp
+    from biblioteca.blueprints.autori import autori_bp
+    from biblioteca.blueprints.opere import opere_bp
+    from biblioteca.blueprints.editori import editori_bp
+    from biblioteca.blueprints.dewey import dewey_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(admin_bp)

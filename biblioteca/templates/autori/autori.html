@@ -6,7 +6,7 @@
 <div class="container mt-2">
     <div class="card shadow">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h6 class="card-title mb-0"><em>Elenco Autori ({{ items|length }})</em></h6>
+            <h6 class="card-title mb-0"><em>Elenco Autori ({{ total }})</em></h6>
             <a href="{{ url_for('autori.nuovo_autore') }}" class="btn btn-success shadow-sm btn-sm">
                 <i class="bi bi-plus-lg"></i> Aggiungi Nuovo
             </a>
@@ -84,16 +84,6 @@
                                        class="btn btn-sm btn-warning d-inline-flex align-items-center">
                                         <i class="bi bi-pencil me-1"></i> Modifica
                                     </a>
-                                    <!-- <form action="{{ url_for('autori.elimina_autore', id=item.id) }}"
-                                          method="POST" class="d-inline"
-                                          onsubmit="return confirm('Eliminare {{ item.nome }} {{ item.cognome }}?');">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <button type="submit"
-                                                class="btn btn-sm btn-danger d-inline-flex align-items-center"
-                                                {{ 'disabled' if item.opere | length > 0 }}>
-                                            <i class="bi bi-trash me-1"></i> Elimina
-                                        </button>
-                                    </form> -->
                                 </div>
                             </td>
                         </tr>
@@ -112,6 +102,80 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- PAGINAZIONE -->
+            {% if items.pages > 1 %}
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <small class="text-muted">
+                    Pagina {{ items.page }} di {{ items.pages }} — {{ total }} risultati
+                </small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+
+                        <!-- Prima pagina -->
+                        <li class="page-item {{ 'disabled' if not items.has_prev }}">
+                            <a class="page-link" href="{{ url_for('autori.elenco_autori',
+                                page=1,
+                                cognome=filtro_cognome,
+                                nome=filtro_nome,
+                                nazionalita=filtro_nazionalita) }}">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+
+                        <!-- Pagina precedente -->
+                        <li class="page-item {{ 'disabled' if not items.has_prev }}">
+                            <a class="page-link" href="{{ url_for('autori.elenco_autori',
+                                page=items.prev_num,
+                                cognome=filtro_cognome,
+                                nome=filtro_nome,
+                                nazionalita=filtro_nazionalita) }}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        <!-- Numeri pagina -->
+                        {% for p in items.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if p %}
+                                <li class="page-item {{ 'active' if p == items.page }}">
+                                    <a class="page-link" href="{{ url_for('autori.elenco_autori',
+                                        page=p,
+                                        cognome=filtro_cognome,
+                                        nome=filtro_nome,
+                                        nazionalita=filtro_nazionalita) }}">{{ p }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Pagina successiva -->
+                        <li class="page-item {{ 'disabled' if not items.has_next }}">
+                            <a class="page-link" href="{{ url_for('autori.elenco_autori',
+                                page=items.next_num,
+                                cognome=filtro_cognome,
+                                nome=filtro_nome,
+                                nazionalita=filtro_nazionalita) }}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+
+                        <!-- Ultima pagina -->
+                        <li class="page-item {{ 'disabled' if not items.has_next }}">
+                            <a class="page-link" href="{{ url_for('autori.elenco_autori',
+                                page=items.pages,
+                                cognome=filtro_cognome,
+                                nome=filtro_nome,
+                                nazionalita=filtro_nazionalita) }}">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+
         </div>
     </div>
 </div>

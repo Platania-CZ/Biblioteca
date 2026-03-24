@@ -15,7 +15,7 @@ def index():
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
-    from models import Prestito, Utente
+    from biblioteca.models import Prestito, Utente
     stats = {
         'totale_opere': Opera.query.count(),
         'totale_autori': Autore.query.count(),

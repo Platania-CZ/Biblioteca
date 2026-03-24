@@ -1,19 +1,21 @@
-from biblioteca.extensions import create_app, db
-from models import ClassificazioneDewey, Utente
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from biblioteca import create_app
+from biblioteca.extensions import db
+from biblioteca.models import ClassificazioneDewey, Utente, Editore, Autore
+from biblioteca.enums import NazionalitaEnum
+from datetime import date
 
 app = create_app()
 
-# ==========================================
-# CREAZIONE TABELLE E POPOLAMENTO
-# ==========================================
-
 with app.app_context():
-    # 1. Ricrea tutte le tabelle
     db.drop_all()
     db.create_all()
     print("Tabelle create con successo.")
 
-    # 2. Amministratore di default
+    # 1. Amministratore di default
     if not Utente.query.filter_by(ruolo='amministratore').first():
         admin = Utente(
             username='admin',
@@ -27,7 +29,7 @@ with app.app_context():
     else:
         print("Amministratore già presente.")
 
-    # 3. Popolamento Dewey (solo se la tabella è vuota)
+    # 2. Popolamento Dewey
     if ClassificazioneDewey.query.count() == 0:
         print("Popolamento classificazione Dewey in corso...")
 
@@ -41,7 +43,7 @@ with app.app_context():
             '600': [(None, 'Tecnologia'), ('610', 'Medicina'), ('620', 'Ingegneria'), ('630', 'Agricoltura'), ('640', 'Economia domestica'), ('650', 'Management'), ('660', 'Ingegneria chimica'), ('670', 'Manifattura'), ('680', 'Lavorazioni speciali'), ('690', 'Edilizia')],
             '700': [(None, 'Arti e sport'), ('710', 'Urbanistica'), ('720', 'Architettura'), ('730', 'Scultura'), ('740', 'Disegno'), ('750', 'Pittura'), ('760', 'Grafica'), ('770', 'Fotografia'), ('780', 'Musica'), ('790', 'Spettacolo e sport')],
             '800': [(None, 'Letteratura'), ('810', 'Letteratura americana'), ('820', 'Letteratura inglese'), ('830', 'Letterature germaniche'), ('840', 'Letterature romanze'), ('850', 'Letteratura italiana'), ('860', 'Letterature ispaniche'), ('870', 'Letteratura latina'), ('880', 'Letteratura greca'), ('890', 'Altre letterature')],
-            '900': [(None, 'Storia e geografia'), ('910', 'Geografia e viaggi'), ('920', 'Biografia e genealogia'), ('930', 'Storia antica'), ('940', 'Storia d\'Europa'), ('950', 'Storia d\'Asia'), ('960', 'Storia d\'Africa'), ('970', 'Storia del Nord America'), ('980', 'Storia del Sud America'), ('990', 'Storia di altre aree')]
+            '900': [(None, 'Storia e geografia'), ('910', 'Geografia e viaggi'), ('920', 'Biografia e genealogia'), ('930', 'Storia antica'), ('940', "Storia d'Europa"), ('950', "Storia d'Asia"), ('960', "Storia d'Africa"), ('970', 'Storia del Nord America'), ('980', 'Storia del Sud America'), ('990', 'Storia di altre aree')]
         }
 
         for principale, sottosezioni in dewey_data.items():
@@ -65,5 +67,35 @@ with app.app_context():
 
         db.session.commit()
         print("Classificazione Dewey popolata con successo!")
+
+    # 3. Popolamento Editori
+    if Editore.query.count() == 0:
+        print("Popolamento editori...")
+        editori = [
+            Editore(nome="Mondadori", sede="Milano"),
+            Editore(nome="Zanichelli", sede="Bologna"),
+            Editore(nome="Adelphi", sede="Milano")
+        ]
+        db.session.add_all(editori)
+        db.session.commit()
+        print("Editori popolati con successo!")
+
+    # 4. Popolamento Autori
+    if Autore.query.count() == 0:
+        print("Popolamento autori in corso...")
+        autori_da_inserire = [
+            Autore(nome="Umberto", cognome="Eco", nazionalita=NazionalitaEnum.ITALIA, data_nascita=date(1932, 1, 5)),
+            Autore(nome="George", cognome="Orwell", nazionalita=NazionalitaEnum.REGNO_UNITO, data_nascita=date(1903, 6, 25)),
+            Autore(nome="Gabriel", cognome="García Márquez", nazionalita=NazionalitaEnum.COLOMBIA, data_nascita=date(1927, 3, 6)),
+            Autore(nome="Dante", cognome="Alighieri", nazionalita=NazionalitaEnum.ITALIA, data_nascita=date(1265, 5, 1)),
+            Autore(nome="Virginia", cognome="Woolf", nazionalita=NazionalitaEnum.REGNO_UNITO, data_nascita=date(1882, 1, 25))
+        ]
+        try:
+            db.session.add_all(autori_da_inserire)
+            db.session.commit()
+            print("Autori inseriti con successo!")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Errore durante l'inserimento degli autori: {e}")
 
     print("Database pronto!")
